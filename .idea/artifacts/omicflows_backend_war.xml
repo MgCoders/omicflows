@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="omicflows-backend:war">
-    <output-path>$PROJECT_DIR$/target</output-path>
-    <root id="archive" name="omicflows-backend.war">
-      <element id="artifact" artifact-name="omicflows-backend:war exploded" />
-    </root>
-  </artifact>
-</component>
