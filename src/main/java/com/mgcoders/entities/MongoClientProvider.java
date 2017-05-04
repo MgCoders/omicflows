@@ -16,10 +16,11 @@ import javax.ejb.*;
  * Created by rsperoni on 03/05/17.
  */
 @Singleton
+@Startup
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 public class MongoClientProvider {
 
-    private static String CONNECTION_STRING = "mongodb://mongo:27017/";
+    private static String CONNECTION_STRING = "mongo";
     private static String DATABASE_NAME = "omicflows";
     private static String COLLECTION_TOOL = "tool";
 

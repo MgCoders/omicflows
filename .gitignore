@@ -47,5 +47,5 @@ fabric.properties
 
 target/
 *.iml
-wildfly/deployments/
+wildfly/deployments/*
 
