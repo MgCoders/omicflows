@@ -1,4 +1,4 @@
-wildfy:
+wildfly:
   build: wildfly
   ports:
     - 127.0.0.1:8080:8080
@@ -6,7 +6,7 @@ wildfy:
   links:
     - mongo
   volumes:
-    - ./wildfly/deployments:/opt/jboss/wildfly/standalone/deployments/
+    - ./wildfly/deployments:/opt/jboss/wildfly/standalone/deployments:z
 mongo:
   image: tutum/mongodb:3.2
   environment:

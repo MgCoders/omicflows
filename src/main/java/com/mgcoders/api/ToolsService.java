@@ -4,9 +4,7 @@ import com.mgcoders.entities.MongoClientProvider;
 import com.mgcoders.entities.Tool;
 
 import javax.ejb.EJB;
-import javax.enterprise.inject.*;
 import javax.ws.rs.*;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +26,14 @@ public class ToolsService {
     }
 
     @GET
+    @JWTTokenNeeded
     @Produces(MediaType.APPLICATION_JSON)
     public List<Tool> get() {
         return mongoClientProvider.getToolCollection().find(Tool.class).into(new ArrayList<>());
     }
 
     @POST
+    @JWTTokenNeeded
     @Consumes(MediaType.APPLICATION_JSON)
     public void newTool(Tool tool){
         mongoClientProvider.getToolCollection().insertOne(tool);
