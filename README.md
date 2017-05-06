@@ -1,5 +1,11 @@
 # omicflows-backend
 
-docker-compose up -d
+Levantamos los contenedores de Mongo y Wildfly:
 
-mvn package 
+    docker-compose up -d
+
+Con cada cambio de código generamos el artefacto:
+
+    mvn package 
+
+El deploy se hace **automáticamente**.
