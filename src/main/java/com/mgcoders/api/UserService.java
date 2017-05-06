@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
-import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
@@ -51,19 +50,21 @@ public class UserService {
     @POST
     @Path("/login")
     @Consumes(APPLICATION_FORM_URLENCODED)
-    public Response authenticateUser(@FormParam("login") String login,
+    public Response authenticateUser(@FormParam("email") String email,
                                      @FormParam("password") String password) {
         try {
 
             // Authenticate the user using the credentials provided
-            authenticate(login, password);
+            authenticate(email, password);
 
 
             // Issue a token for the user
-            String token = issueToken(login);
+            String token = issueToken(email);
 
             // Return the token on the response
-            return Response.ok().header(AUTHORIZATION, "Bearer " + token).build();
+            String json = "{\"token\":" + "\"Bearer " + token + "\"}";
+            return Response.ok(json).build();
+            //return Response.ok().header(AUTHORIZATION, "Bearer " + token).build();
 
         } catch (Exception e) {
             return Response.status(UNAUTHORIZED).build();
