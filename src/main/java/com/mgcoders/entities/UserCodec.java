@@ -1,40 +1,20 @@
 package com.mgcoders.entities;
 
-import org.bson.*;
-import org.bson.codecs.*;
+import org.bson.BsonReader;
+import org.bson.BsonWriter;
+import org.bson.Document;
+import org.bson.codecs.Codec;
+import org.bson.codecs.DecoderContext;
+import org.bson.codecs.EncoderContext;
 import org.bson.types.ObjectId;
 
 /**
  * Created by rsperoni on 03/05/17.
  */
-public class UserCodec implements CollectibleCodec<User> {
-
-    private Codec<Document> documentCodec;
-
-    public UserCodec() {
-        this.documentCodec = new DocumentCodec();
-    }
+public class UserCodec extends AbstractCodec<User> {
 
     public UserCodec(Codec<Document> codec) {
-        this.documentCodec = codec;
-    }
-
-    @Override
-    public User generateIdIfAbsentFromDocument(User user) {
-        return documentHasId(user) ? user.withNewObjectId() : user;
-    }
-
-    @Override
-    public boolean documentHasId(User user) {
-        return null == user.getId();
-    }
-
-    @Override
-    public BsonValue getDocumentId(User user) {
-        if (!documentHasId(user)) {
-            throw new IllegalStateException("The document does not contain an _id");
-        }
-        return new BsonString(user.getId().toHexString());
+        super(codec);
     }
 
     @Override
@@ -44,9 +24,7 @@ public class UserCodec implements CollectibleCodec<User> {
         User user = new User();
 
         user.setId(document.getObjectId("_id"));
-
         user.setEmail(document.getString("email"));
-
         user.setPassword(document.getString("password"));
 
         return user;
@@ -75,8 +53,5 @@ public class UserCodec implements CollectibleCodec<User> {
         documentCodec.encode(bsonWriter, document, encoderContext);
     }
 
-    @Override
-    public Class<User> getEncoderClass() {
-        return User.class;
-    }
+
 }

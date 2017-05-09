@@ -9,31 +9,31 @@ public class Tool extends AbstractMongoEntity<Tool> {
 
     private String name;
     private String cwl;
+    private String json;
 
+    public Tool(String name, String cwl) {
+        this.name = name;
+        this.cwl = cwl;
+    }
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getCwl() {
         return cwl;
     }
 
-    public void setCwl(String cwl) {
-        this.cwl = cwl;
+    public String getJson() {
+        return json;
     }
-
 
     @Override
     public String toString() {
         return "Tool{" +
-                "_id=" + _id +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 ", cwl='" + cwl + '\'' +
+                ", _id=" + _id +
                 '}';
     }
 }

@@ -54,8 +54,12 @@ public class MongoClientProvider {
         Codec<Document> defaultDocumentCodec = MongoClient.getDefaultCodecRegistry().get(Document.class);
         ToolCodec toolCodec = new ToolCodec(defaultDocumentCodec);
         UserCodec userCodec = new UserCodec(defaultDocumentCodec);
+
         CodecRegistry codecRegistry = CodecRegistries.fromRegistries(
-                MongoClient.getDefaultCodecRegistry(), CodecRegistries.fromCodecs(Arrays.asList(toolCodec, userCodec)));
+                MongoClient.getDefaultCodecRegistry(),
+                CodecRegistries.fromCodecs(Arrays.asList(toolCodec, userCodec))
+        );
+
         MongoClientOptions options = MongoClientOptions.builder().codecRegistry(codecRegistry)
                 .build();
         try {

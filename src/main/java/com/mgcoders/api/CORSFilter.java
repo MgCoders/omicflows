@@ -17,6 +17,5 @@ public class CORSFilter implements ContainerRequestFilter {
         containerRequestContext.getHeaders().add("Access-Control-Allow-Credentials", "true");
         containerRequestContext.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
         containerRequestContext.getHeaders().add("Access-Control-Max-Age", "1209600");
-        containerRequestContext.getHeaders().add("Access-Control-Expose-Headers", "Authorization");
     }
 }
