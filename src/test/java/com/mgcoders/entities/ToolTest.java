@@ -1,97 +1,27 @@
 package com.mgcoders.entities;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.mgcoders.utils.YamlUtils;
 import org.junit.Test;
-import org.rabix.bindings.cwl.bean.CWLCommandLineTool;
+import org.rabix.bindings.cwl.bean.*;
 import org.rabix.common.json.BeanSerializer;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * Created by rsperoni on 09/05/17.
  */
 public class ToolTest {
 
-    String makeCwl = "#!/usr/bin/env cwl-runner\n" +
-            "cwlVersion: \"cwl:draft-3\"\n" +
-            "\n" +
-            "class: CommandLineTool\n" +
-            "\n" +
-            "description: Run lobSTR allelotype classifier.\n" +
-            "\n" +
-            "requirements:\n" +
-            " - class: InlineJavascriptRequirement\n" +
-            "\n" +
-            "inputs:\n" +
-            "  - id: bam\n" +
-            "    type: File\n" +
-            "    description: |\n" +
-            "      BAM file to analyze. Should have a unique read group and be sorted and indexed.\n" +
-            "    inputBinding:\n" +
-            "      prefix: \"--bam\"\n" +
-            "    secondaryFiles:\n" +
-            "      - \".bai\"\n" +
-            "\n" +
-            "  - id: output_prefix\n" +
-            "    type: string\n" +
-            "    description: \"Prefix for output files. will output prefix.vcf and prefix.genotypes.tab\"\n" +
-            "    inputBinding:\n" +
-            "      prefix: \"--out\"\n" +
-            "\n" +
-            "  - id: noise_model\n" +
-            "    type: File\n" +
-            "    description: |\n" +
-            "      File to read noise model parameters from (.stepmodel)\n" +
-            "    inputBinding:\n" +
-            "      prefix: \"--noise_model\"\n" +
-            "      valueFrom: |\n" +
-            "          ${ return {\"path\": self.path.match(/(.*)\\.stepmodel/)[1], \"class\": \"File\"}; }\n" +
-            "    secondaryFiles:\n" +
-            "      - \"^.stuttermodel\"\n" +
-            "\n" +
-            "  - id: strinfo\n" +
-            "    type: File\n" +
-            "    description: |\n" +
-            "      File containing statistics for each STR.\n" +
-            "    inputBinding:\n" +
-            "      prefix: \"--strinfo\"\n" +
-            "\n" +
-            "  - id: reference\n" +
-            "    type: File\n" +
-            "    description: \"lobSTR's bwa reference files\"\n" +
-            "    inputBinding:\n" +
-            "      prefix: \"--index-prefix\"\n" +
-            "      valueFrom: |\n" +
-            "          ${ return {\"path\": self.path.match(/(.*)ref\\.fasta/)[1], \"class\": \"File\"}; }\n" +
-            "\n" +
-            "    secondaryFiles:\n" +
-            "      - \".amb\"\n" +
-            "      - \".ann\"\n" +
-            "      - \".bwt\"\n" +
-            "      - \".pac\"\n" +
-            "      - \".rbwt\"\n" +
-            "      - \".rpac\"\n" +
-            "      - \".rsa\"\n" +
-            "      - ${return self.path.replace(/(.*)ref\\.fasta/, \"$1chromsizes.tab\")}\n" +
-            "      - ${return self.path.replace(/(.*)ref\\.fasta/, \"$1mergedref.bed\")}\n" +
-            "      - ${return self.path.replace(/(.*)ref\\.fasta/, \"$1ref_map.tab\")}\n" +
-            "\n" +
-            "outputs:\n" +
-            "  - id: vcf\n" +
-            "    type: File\n" +
-            "    outputBinding:\n" +
-            "      glob: $(inputs['output_prefix'] + '.vcf')\n" +
-            "  - id: \"#vcf_stats\"\n" +
-            "    type: File\n" +
-            "    outputBinding:\n" +
-            "      glob: $(inputs['output_prefix'] + '.allelotype.stats')\n" +
-            "\n" +
-            "baseCommand: [\"allelotype\", \"--command\", \"classify\"]\n" +
-            "\n" +
-            "arguments:\n" +
-            "  - \"--noweb\"";
+
     String cwlTool = "#!/usr/bin/env cwl-runner\n" +
             "cwlVersion: v1.0\n" +
             "class: CommandLineTool\n" +
@@ -123,17 +53,59 @@ public class ToolTest {
             "      glob: otus.align/otus_renamed_aligned.fasta";
 
     @Test
-    public void getJson01Test() throws IOException {
-
-        ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
-        Object obj = yamlReader.readValue(cwlTool, Object.class);
-
-        ObjectMapper jsonWriter = new ObjectMapper();
-        String jsonCwl = jsonWriter.writeValueAsString(obj);
-
+    public void commandLineToolTest() throws IOException {
+        File file = new File(getClass().getClassLoader().getResource("tools/qiime-biom-convert.cwl").getFile());
+        String jsonCwl = YamlUtils.yamlFileContentToJsonString(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
         CWLCommandLineTool cwlWorkflow = BeanSerializer.deserialize(jsonCwl, CWLCommandLineTool.class);
         System.out.println(cwlWorkflow.toString());
+        assertTrue(cwlWorkflow.isCommandLineTool());
+    }
+
+    @Test
+    public void commandLineTool2Test() throws IOException {
+        File file = new File(getClass().getClassLoader().getResource("tools/qiime-biom-summarize_table.cwl").getFile());
+        String jsonCwl = YamlUtils.yamlFileContentToJsonString(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
+        CWLCommandLineTool cwlWorkflow = BeanSerializer.deserialize(jsonCwl, CWLCommandLineTool.class);
+        System.out.println(cwlWorkflow.toString());
+        assertTrue(cwlWorkflow.isCommandLineTool());
+        Map<String, Object> uno = YamlUtils.jsonStringToMap(jsonCwl);
+        Map<String, Object> dos = YamlUtils.jsonStringToMap(BeanSerializer.serializePartial(cwlWorkflow));
+        //assertEquals(uno,dos);
+
+    }
 
 
+    @Test
+    public void workflowTest() throws IOException {
+
+        CWLWorkflow cwlWorkflow = new CWLWorkflow();
+        cwlWorkflow.setCwlVersion("v1.0");
+        CWLInputPort cwlInputPort1 = new CWLInputPort("inp", null, "File", null, null, null, null, null, null, null, null);
+        cwlWorkflow.getInputs().add(cwlInputPort1);
+        CWLInputPort cwlInputPort2 = new CWLInputPort("ex", null, "string", null, null, null, null, null, null, null, null);
+        cwlWorkflow.getInputs().add(cwlInputPort2);
+        CWLOutputPort cwlOutputPort = new CWLOutputPort("classout", null, null, "File", null, null, "compile/classfile", null, null, null);
+        cwlWorkflow.getOutputs().add(cwlOutputPort);
+
+        File file = new File(getClass().getClassLoader().getResource("tools/qiime-pick_closed_reference_otus.cwl").getFile());
+        String jsonCwl = YamlUtils.yamlFileContentToJsonString(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
+        CWLCommandLineTool qiimePickClosedReferenceOtus = BeanSerializer.deserialize(jsonCwl, CWLCommandLineTool.class);
+
+        CWLJob cwlJobApp1 = new CWLJob("grep.cwl", null, null, null);
+        List<Map<String, Object>> inputs = new ArrayList<>();
+        Map<String, Object> map = new HashMap<>();
+        map.put("tarfile", "inp");
+        map.put("extractfile", "ex");
+        inputs.add(map);
+        List<Map<String, Object>> outputs = new ArrayList<>();
+        Map<String, Object> map2 = new HashMap<>();
+        map2.put("tarfile", "inp");
+        outputs.add(map2);
+        CWLStep cwlStep = new CWLStep("qiime", qiimePickClosedReferenceOtus, null, null, null, inputs, outputs);
+
+        cwlWorkflow.getSteps().add(cwlStep);
+        System.out.println(BeanSerializer.serializePartial(cwlWorkflow));
+
+        //assertTrue(cwlWorkflow.isWorkflow());
     }
 }
