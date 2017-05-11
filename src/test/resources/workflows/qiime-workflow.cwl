@@ -1,50 +1,76 @@
 cwlVersion: v1.0
 class: Workflow
-label: EMG pipeline's QIIME workflow
-doc: |
-      Step 1: Set environment
-      PYTHONPATH, QIIME_ROOT, PATH
+label: Functional analyis of sequences that match the 16S SSU
 
-      Step 2: Run QIIME script pick_closed_reference_otus.py
-      ${python} ${qiimeDir}/bin/pick_closed_reference_otus.py -i $1 -o $2 -r ${qiimeDir}/gg_13_8_otus/rep_set/97_otus.fasta -t ${qiimeDir}/gg_13_8_otus/taxonomy/97_otu_taxonomy.txt -p ${qiimeDir}/cr_otus_parameters.txt
-
-      Step 3: Convert new biom format to old biom format (json)
-      ${qiimeDir}/bin/biom convert -i ${resultDir}/cr_otus/otu_table.biom -o ${resultDir}/cr_otus/${infileBase}_otu_table_json.biom --table-type="OTU table" --to-json
-
-      Step 4: Convert new biom format to a classic OTU table.
-      ${qiimeDir}/bin/biom convert -i ${resultDir}/cr_otus/otu_table.biom -o ${resultDir}/cr_otus/${infileBase}_otu_table.txt --to-tsv --header-key taxonomy --table-type "OTU table"
-
-      Step 5: Create otu summary
-      ${qiimeDir}/bin/biom summarize-table -i ${resultDir}/cr_otus/otu_table.biom -o ${resultDir}/cr_otus/${infileBase}_otu_table_summary.txt
-
-      Step 6: Move one of the result files
-      mv ${resultDir}/cr_otus/otu_table.biom ${resultDir}/cr_otus/${infileBase}_otu_table_hdf5.biom
-
-      Step 7: Create a list of observations
-      awk '{print $1}' ${resultDir}/cr_otus/${infileBase}_otu_table.txt | sed '/#/d' > ${resultDir}/cr_otus/${infileBase}_otu_observations.txt
-
-      Step 8: Create a phylogenetic tree by pruning GreenGenes and keeping observed otus
-      ${python} ${qiimeDir}/bin/filter_tree.py -i ${qiimeDir}/gg_13_8_otus/trees/97_otus.tree -t ${resultDir}/cr_otus/${infileBase}_otu_observations.txt -o ${resultDir}/cr_otus/${infileBase}_pruned.tree
+requirements:
+ - class: SchemaDefRequirement
+   types:
+    - $import: ../tools/qiime-biom-convert-table.yaml
 
 inputs:
-  inp: File
-  ex: string
+  16S_matches:
+    type: File
 
 outputs:
-  classout:
+  otu_table_summary:
     type: File
-    outputSource: compile/classfile
+    outputSource: create_otu_text_summary/otu_table_summary
+  tree:
+    type: File
+    outputSource: prune_tree/pruned_tree
+  biom_json:
+    type: File
+    outputSource: convert_new_biom_to_old_biom/result
 
 steps:
-  qiime:
-    run: pick_closed_reference_otus.cwl
+  pick_closed_reference_otus:
+    run: ../tools/qiime-pick_closed_reference_otus.cwl
     in:
-      tarfile: inp
-      extractfile: ex
-    out: [example_out]
+      sequences: 16S_matches
+    out: [ otu_table, otus_tree ]
 
-  compile:
-    run: arguments.cwl
+  convert_new_biom_to_old_biom:
+    run: ../tools/qiime-biom-convert.cwl
     in:
-      src: untar/example_out
-    out: [classfile]
+      biom: pick_closed_reference_otus/otu_table
+      table_type: { default: OTU Table }
+      json: { default: true }
+    out: [ result ]
+
+  convert_new_biom_to_classic:
+    run: ../tools/qiime-biom-convert.cwl
+    in:
+      biom: pick_closed_reference_otus/otu_table
+      header_key: { default: taxonomy }
+      table_type: { default: OTU Table }
+      tsv: { default: true }
+    out: [ result ]
+
+  create_otu_text_summary:
+    run: ../tools/qiime-biom-summarize_table.cwl
+    in:
+      biom: pick_closed_reference_otus/otu_table
+    out: [ otu_table_summary ]
+
+  extract_observations:
+    run: ../tools/extract_observations.cwl
+    in:
+      tsv_otu_table: convert_new_biom_to_classic/result
+    out: [ observations ]
+
+  prune_tree:
+    run: ../tools/qiime-filter_tree.cwl
+    in:
+      tree: pick_closed_reference_otus/otus_tree
+      tips_or_seqids_to_retain: extract_observations/observations
+    out: [ pruned_tree ]
+
+$namespaces:
+ edam: http://edamontology.org/
+ s: http://schema.org/
+$schemas:
+ - http://edamontology.org/EDAM_1.16.owl
+ - https://schema.org/docs/schema_org_rdfa.html
+
+s:license: "https://www.apache.org/licenses/LICENSE-2.0"
+s:copyrightHolder: "EMBL - European Bioinformatics Institute"

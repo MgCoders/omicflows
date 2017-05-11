@@ -1,4 +1,4 @@
-package com.mgcoders.entities;
+package com.mgcoders.db;
 
 /**
  * Created by rsperoni on 05/05/17.

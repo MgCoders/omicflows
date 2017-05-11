@@ -1,7 +1,7 @@
 package com.mgcoders.api;
 
-import com.mgcoders.entities.MongoClientProvider;
-import com.mgcoders.entities.Tool;
+import com.mgcoders.db.MongoClientProvider;
+import com.mgcoders.db.Tool;
 
 import javax.ejb.EJB;
 import javax.ws.rs.*;

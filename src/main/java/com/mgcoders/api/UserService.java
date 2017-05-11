@@ -1,7 +1,7 @@
 package com.mgcoders.api;
 
-import com.mgcoders.entities.MongoClientProvider;
-import com.mgcoders.entities.User;
+import com.mgcoders.db.MongoClientProvider;
+import com.mgcoders.db.User;
 import com.mgcoders.utils.KeyGenerator;
 import com.mgcoders.utils.PasswordUtils;
 import io.jsonwebtoken.Jwts;

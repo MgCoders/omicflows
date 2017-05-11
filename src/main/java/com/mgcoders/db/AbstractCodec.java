@@ -1,4 +1,4 @@
-package com.mgcoders.entities;
+package com.mgcoders.db;
 
 import org.bson.BsonString;
 import org.bson.BsonValue;

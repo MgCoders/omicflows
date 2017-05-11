@@ -15,11 +15,18 @@ import java.util.Map;
  */
 public class YamlUtils {
 
-    public static String yamlFileContentToJsonString(String yaml) throws IOException {
+    public static String cwlFileContentToJson(String yaml) throws IOException {
         ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
         Object obj = yamlReader.readValue(yaml, Object.class);
         ObjectMapper jsonWriter = new ObjectMapper();
         return jsonWriter.writeValueAsString(obj);
+    }
+
+    public static String jsonToCwlFileContent(String json) throws IOException {
+        ObjectMapper jsonReader = new ObjectMapper();
+        Object obj = jsonReader.readValue(json, Object.class);
+        ObjectMapper yamlWriter = new ObjectMapper(new YAMLFactory());
+        return yamlWriter.writeValueAsString(obj);
     }
 
     public static String jsonFileContentToJsonString(String json) throws IOException {
@@ -32,6 +39,11 @@ public class YamlUtils {
     public static Map<String, Object> jsonStringToMap(String json) throws IOException {
         ObjectMapper om = new ObjectMapper();
         return (Map<String, Object>) (om.readValue(json, Map.class));
+    }
+
+    public static String mapToJsonString(Map<String,Object> map) throws IOException {
+        ObjectMapper om = new ObjectMapper();
+        return om.writeValueAsString(map);
     }
 
     public static String readFile(String path, Charset encoding)

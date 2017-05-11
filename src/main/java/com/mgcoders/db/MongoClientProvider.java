@@ -1,4 +1,4 @@
-package com.mgcoders.entities;
+package com.mgcoders.db;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;

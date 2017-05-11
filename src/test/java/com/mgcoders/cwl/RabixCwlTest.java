@@ -1,6 +1,7 @@
-package com.mgcoders.entities;
+package com.mgcoders.cwl;
 
 
+import com.mgcoders.cwl.RabixCwlOps;
 import com.mgcoders.utils.YamlUtils;
 import org.junit.Test;
 import org.rabix.bindings.cwl.bean.*;
@@ -14,69 +15,61 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.mgcoders.utils.YamlUtils.*;
 import static junit.framework.TestCase.assertTrue;
 
 /**
  * Created by rsperoni on 09/05/17.
  */
-public class ToolTest {
+public class RabixCwlTest {
 
-
-    String cwlTool = "#!/usr/bin/env cwl-runner\n" +
-            "cwlVersion: v1.0\n" +
-            "class: CommandLineTool\n" +
-            "\n" +
-            "hints:\n" +
-            "  - class: DockerRequirement\n" +
-            "    dockerPull: longyee/qiime\n" +
-            "\n" +
-            "inputs:\n" +
-            "  otuFasta:\n" +
-            "    type: File\n" +
-            "    inputBinding:\n" +
-            "      prefix: \"-i\"\n" +
-            "  alignmentMethod:\n" +
-            "    type: string\n" +
-            "    inputBinding:\n" +
-            "      prefix: \"-m\"\n" +
-            "    default: pynast\n" +
-            "  otuRepsetAlignmentTemplateFasta:\n" +
-            "    type: File\n" +
-            "    inputBinding:\n" +
-            "      prefix: \"-t\"\n" +
-            "baseCommand: [ align_seqs.py, \"-o\", otus.align ]\n" +
-            "\n" +
-            "outputs:\n" +
-            "  otuAlignedFasta:\n" +
-            "    type: File\n" +
-            "    outputBinding:\n" +
-            "      glob: otus.align/otus_renamed_aligned.fasta";
+    RabixCwlOps rabixCwlOps = new RabixCwlOps();
 
     @Test
     public void commandLineToolTest() throws IOException {
         File file = new File(getClass().getClassLoader().getResource("tools/qiime-biom-convert.cwl").getFile());
-        String jsonCwl = YamlUtils.yamlFileContentToJsonString(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
-        CWLCommandLineTool cwlWorkflow = BeanSerializer.deserialize(jsonCwl, CWLCommandLineTool.class);
-        System.out.println(cwlWorkflow.toString());
-        assertTrue(cwlWorkflow.isCommandLineTool());
+        String jsonCwl = cwlFileContentToJson(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
+        assertTrue(rabixCwlOps.isValidCwlTool(jsonCwl));
     }
 
     @Test
     public void commandLineTool2Test() throws IOException {
         File file = new File(getClass().getClassLoader().getResource("tools/qiime-biom-summarize_table.cwl").getFile());
-        String jsonCwl = YamlUtils.yamlFileContentToJsonString(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
-        CWLCommandLineTool cwlWorkflow = BeanSerializer.deserialize(jsonCwl, CWLCommandLineTool.class);
-        System.out.println(cwlWorkflow.toString());
-        assertTrue(cwlWorkflow.isCommandLineTool());
-        Map<String, Object> uno = YamlUtils.jsonStringToMap(jsonCwl);
-        Map<String, Object> dos = YamlUtils.jsonStringToMap(BeanSerializer.serializePartial(cwlWorkflow));
-        //assertEquals(uno,dos);
+        String jsonCwl = cwlFileContentToJson(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
+        assertTrue(rabixCwlOps.isValidCwlTool(jsonCwl));
 
+    }
+
+    @Test
+    public void workflowTest() throws IOException {
+        File compileToolFile = new File(getClass().getClassLoader().getResource("tools/compile.cwl").getFile());
+        String jsonCompileToolFile = cwlFileContentToJson(YamlUtils.readFile(compileToolFile.getPath(), StandardCharsets.UTF_8));
+        assertTrue(rabixCwlOps.isValidCwlWorkflow(jsonCompileToolFile));
+        Map<String,Object> mapCompile = jsonStringToMap(jsonCompileToolFile);
+
+        File linkToolFile = new File(getClass().getClassLoader().getResource("tools/link.cwl").getFile());
+        String jsonLinkToolFile = cwlFileContentToJson(YamlUtils.readFile(linkToolFile.getPath(), StandardCharsets.UTF_8));
+        assertTrue(rabixCwlOps.isValidCwlWorkflow(jsonLinkToolFile));
+        Map<String,Object> mapLink = jsonStringToMap(jsonLinkToolFile);
+
+        File file = new File(getClass().getClassLoader().getResource("workflows/compile1.cwl").getFile());
+        String jsonCwl = cwlFileContentToJson(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
+        Map<String,Object> mapWorkflow = jsonStringToMap(jsonCwl);
+
+        ((Map<String,Object>)((Map<String,Object>)mapWorkflow.get("steps")).get("compilesources-src1")).replace("run",mapCompile);
+        ((Map<String,Object>)((Map<String,Object>)mapWorkflow.get("steps")).get("compilesources-src2")).replace("run",mapCompile);
+        ((Map<String,Object>)((Map<String,Object>)mapWorkflow.get("steps")).get("linkobj")).replace("run",mapLink);
+        String finalWorkflow = mapToJsonString(mapWorkflow);
+
+        System.out.println(jsonToCwlFileContent(finalWorkflow));
+
+
+        //assertTrue(rabixCwlOps.isValidCwlWorkflow(finalWorkflow));
     }
 
 
     @Test
-    public void workflowTest() throws IOException {
+    public void workflowTest1() throws IOException {
 
         CWLWorkflow cwlWorkflow = new CWLWorkflow();
         cwlWorkflow.setCwlVersion("v1.0");
@@ -88,7 +81,7 @@ public class ToolTest {
         cwlWorkflow.getOutputs().add(cwlOutputPort);
 
         File file = new File(getClass().getClassLoader().getResource("tools/qiime-pick_closed_reference_otus.cwl").getFile());
-        String jsonCwl = YamlUtils.yamlFileContentToJsonString(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
+        String jsonCwl = cwlFileContentToJson(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
         CWLCommandLineTool qiimePickClosedReferenceOtus = BeanSerializer.deserialize(jsonCwl, CWLCommandLineTool.class);
 
         CWLJob cwlJobApp1 = new CWLJob("grep.cwl", null, null, null);
