@@ -1,7 +1,7 @@
 package com.mgcoders.cwl;
 
 
-import com.mgcoders.cwl.RabixCwlOps;
+import com.mgcoders.db.Tool;
 import com.mgcoders.utils.YamlUtils;
 import org.junit.Test;
 import org.rabix.bindings.cwl.bean.*;
@@ -40,6 +40,69 @@ public class RabixCwlTest {
 
     }
 
+    @Test
+    public void toolCompileToStep() throws IOException {
+        File compileToolFile = new File(getClass().getClassLoader().getResource("tools/compile.cwl").getFile());
+        String jsonCompileToolFile = cwlFileContentToJson(YamlUtils.readFile(compileToolFile.getPath(), StandardCharsets.UTF_8));
+        Tool tool = new Tool("compile.cwl", YamlUtils.readFile(compileToolFile.getPath(), StandardCharsets.UTF_8));
+        tool.setJson(jsonCompileToolFile);
+        CWLStep cwlStep = rabixCwlOps.stepFromTool(tool, new HashMap<>());
+        System.out.println(cwlStep.toString());
+    }
+
+    @Test
+    public void toolEchoToWorkflow() throws IOException {
+        File compileToolFile = new File(getClass().getClassLoader().getResource("tools/1st-tool.cwl").getFile());
+        String jsonCompileToolFile = cwlFileContentToJson(YamlUtils.readFile(compileToolFile.getPath(), StandardCharsets.UTF_8));
+        Tool tool = new Tool("1st-tool.cwl", YamlUtils.readFile(compileToolFile.getPath(), StandardCharsets.UTF_8));
+        tool.setJson(jsonCompileToolFile);
+        CWLStep cwlStep = rabixCwlOps.stepFromTool(tool, new HashMap<>());
+        CWLWorkflow cwlWorkflow = new CWLWorkflow();
+        cwlWorkflow.setCwlVersion("v1.0");
+        rabixCwlOps.addStep(cwlWorkflow, cwlStep);
+        System.out.println(jsonToCwlFileContent(BeanSerializer.serializePartial(cwlWorkflow)));
+    }
+
+    @Test
+    public void toolsToWorkflow() throws IOException {
+        //arguments
+        File file = new File(getClass().getClassLoader().getResource("tools/arguments.cwl").getFile());
+        String jsonFile = cwlFileContentToJson(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
+        Tool toolArg = new Tool("arguments.cwl", YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
+        toolArg.setJson(jsonFile);
+        Map<String, String> inputMapping = new HashMap<>();
+        inputMapping.put("src", "tar-param.cwl/example_out");
+        CWLStep cwlStepArg = rabixCwlOps.stepFromTool(toolArg, inputMapping);
+
+        //tar
+        file = new File(getClass().getClassLoader().getResource("tools/tar-param.cwl").getFile());
+        jsonFile = cwlFileContentToJson(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
+        Tool toolTar = new Tool("tar-param.cwl", YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
+        toolTar.setJson(jsonFile);
+        CWLStep cwlStepTar = rabixCwlOps.stepFromTool(toolTar, new HashMap<>());
+
+        CWLWorkflow cwlWorkflow = new CWLWorkflow();
+        cwlWorkflow.setCwlVersion("v1.0");
+        rabixCwlOps.addStep(cwlWorkflow, cwlStepTar);
+        rabixCwlOps.addStep(cwlWorkflow, cwlStepArg);
+
+        String resultado = BeanSerializer.serializeFull(cwlWorkflow);
+        System.out.println(resultado);
+
+        /*File fileRes = new File(getClass().getClassLoader().getResource("workflows/1st-workflow-generated.cwl").getFile());
+        String jsonRes = cwlFileContentToJson(YamlUtils.readFile(fileRes.getPath(), StandardCharsets.UTF_8));
+        CWLWorkflow cwlWorkflow2 = BeanSerializer.deserialize(jsonRes,CWLWorkflow.class);
+        System.out.println(BeanSerializer.serializeFull(cwlWorkflow2));*/
+
+    }
+
+    @Test
+    public void workflowTestHello() throws IOException {
+        File file = new File(getClass().getClassLoader().getResource("workflows/1st-tool-workflow.cwl").getFile());
+        String jsonCwl = cwlFileContentToJson(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
+        CWLWorkflow cwlWorkflow = BeanSerializer.deserialize(jsonCwl, CWLWorkflow.class);
+        System.out.println(cwlWorkflow.toString());
+    }
     @Test
     public void workflowTest() throws IOException {
         File compileToolFile = new File(getClass().getClassLoader().getResource("tools/compile.cwl").getFile());

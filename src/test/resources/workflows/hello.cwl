@@ -29,4 +29,4 @@ steps:
         response:
           type: stdout
     in: []
-    out: [response]
+    out: []

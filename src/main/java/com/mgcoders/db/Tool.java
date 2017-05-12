@@ -28,6 +28,10 @@ public class Tool extends AbstractMongoEntity<Tool> {
         return json;
     }
 
+    public void setJson(String json) {
+        this.json = json;
+    }
+
     @Override
     public String toString() {
         return "Tool{" +
