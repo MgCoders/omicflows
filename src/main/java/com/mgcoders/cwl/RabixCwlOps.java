@@ -1,11 +1,13 @@
 package com.mgcoders.cwl;
 
 import com.mgcoders.db.Tool;
+import com.mgcoders.utils.YamlUtils;
 import org.rabix.bindings.cwl.bean.*;
 import org.rabix.common.json.BeanSerializer;
 import org.rabix.common.json.processor.BeanProcessorException;
 
 import javax.enterprise.inject.Default;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +56,12 @@ public class RabixCwlOps implements CwlOps {
 
     }
 
+    private void postProcessJsonWorkflow(String json) throws IOException {
+        Map<String, Object> map = YamlUtils.jsonStringToMap(json);
+        map.put("class", "Workflow");
+        map.remove("successClass");
+    }
+
     private CWLStep stepFromTool(String toolName, CWLCommandLineTool cwlTool, Map<String, String> inputMapping) {
         //Mapeo las salidas y entradas de la tool al step
         List inputs = new ArrayList<>();
@@ -88,19 +96,24 @@ public class RabixCwlOps implements CwlOps {
     }
 
 
-    public void addStep(CWLWorkflow cwlWorkflow, CWLStep cwlStep) {
+    public void addStep(CWLWorkflow cwlWorkflow, CWLStep cwlStep, Map<String, String> inputMapping) {
 
+        //Resuelvo inputs
         if (cwlStep.getInputs().size() > 0) {
             //Recorro la lista de inputs
             for (Map<String, Object> in : cwlStep.getInputs()) {
                 String mappedPortId = (String) in.get("source");
                 String schema = (String) in.get("schema");
                 in.remove("schema");
-                CWLInputPort cwlInputPort = new CWLInputPort(mappedPortId, null, schema, null, null, null, null, null, null, null, null);
-                cwlWorkflow.getInputs().add(cwlInputPort);
+                //Me fijo si esta input no esta resuelta ya por un mapeo
+                if (inputMapping.get(in.get("id")) == null || inputMapping.get(in.get("id")) != mappedPortId) {
+                    CWLInputPort cwlInputPort = new CWLInputPort(mappedPortId, null, schema, null, null, null, null, null, null, null, null);
+                    cwlWorkflow.getInputs().add(cwlInputPort);
+                }
             }
         }
 
+        //Resuelvo outputs
         if (cwlStep.getOutputs().size() > 0) {
             //Recorro outs
             for (Map<String, Object> out : cwlStep.getOutputs()) {
@@ -112,6 +125,15 @@ public class RabixCwlOps implements CwlOps {
                 cwlWorkflow.getOutputs().add(cwlOutputPort);
             }
         }
+
+        //Saco outputs anteriores que hayan sido resueltos por este nuevo step
+        List<CWLOutputPort> portsToRemove = new ArrayList<>();
+        for (CWLOutputPort cwlOutputPort : cwlWorkflow.getOutputs()) {
+            if (inputMapping.values().contains(cwlOutputPort.getSource())) {
+                portsToRemove.add(cwlOutputPort);
+            }
+        }
+        cwlWorkflow.getOutputs().removeAll(portsToRemove);
 
         cwlWorkflow.getSteps().add(cwlStep);
 

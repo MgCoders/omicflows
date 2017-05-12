@@ -54,7 +54,7 @@ public class RabixCwlTest {
         CWLStep cwlStep = rabixCwlOps.stepFromTool(tool, new HashMap<>());
         CWLWorkflow cwlWorkflow = new CWLWorkflow();
         cwlWorkflow.setCwlVersion("v1.0");
-        rabixCwlOps.addStep(cwlWorkflow, cwlStep);
+        rabixCwlOps.addStep(cwlWorkflow, cwlStep, new HashMap<>());
         System.out.println(BeanSerializer.serializePartial(cwlWorkflow));
     }
 
@@ -76,11 +76,11 @@ public class RabixCwlTest {
 
         CWLWorkflow cwlWorkflow = new CWLWorkflow();
         cwlWorkflow.setCwlVersion("v1.0");
-        rabixCwlOps.addStep(cwlWorkflow, cwlStepTar);
-        rabixCwlOps.addStep(cwlWorkflow, cwlStepArg);
+        rabixCwlOps.addStep(cwlWorkflow, cwlStepTar, new HashMap<>());
+        rabixCwlOps.addStep(cwlWorkflow, cwlStepArg, inputMapping);
 
         String resultado = BeanSerializer.serializeFull(cwlWorkflow);
-        System.out.println(resultado);
+        System.out.println(jsonToCwlFileContent(resultado));
 
         /*GOL*/
 
