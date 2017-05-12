@@ -7,7 +7,6 @@ import com.mgcoders.utils.PasswordUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.*;
@@ -38,7 +37,7 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 @Transactional
 public class UserService {
 
-    @EJB
+    @Inject
     MongoClientProvider mongoClientProvider;
     @Inject
     private KeyGenerator keyGenerator;

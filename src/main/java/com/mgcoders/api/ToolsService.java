@@ -1,11 +1,13 @@
 package com.mgcoders.api;
 
+import com.mgcoders.cwl.CwlOps;
 import com.mgcoders.db.MongoClientProvider;
 import com.mgcoders.db.Tool;
 
-import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +17,10 @@ import java.util.List;
 @Path("/tools")
 public class ToolsService {
 
-    @EJB
+    @Inject
     MongoClientProvider mongoClientProvider;
+    @Inject
+    CwlOps cwlOps;
 
     @GET
     @Path("/{query}")
@@ -35,8 +39,16 @@ public class ToolsService {
     @POST
     @JWTTokenNeeded
     @Consumes(MediaType.APPLICATION_JSON)
-    public void newTool(Tool tool){
-        mongoClientProvider.getToolCollection().insertOne(tool);
+    public Response newTool(Tool tool) {
+        try {
+            tool.generateJson();
+            if (cwlOps.isValidCwlTool(tool.getJson())) {
+                mongoClientProvider.getToolCollection().insertOne(tool);
+                return Response.status(Response.Status.ACCEPTED).build();
+            }
+        } catch (Exception ignored) {
+        }
+        return Response.status(Response.Status.BAD_REQUEST).entity("Invalid cwl").build();
     }
 
 

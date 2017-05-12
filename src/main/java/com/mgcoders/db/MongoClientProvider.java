@@ -10,15 +10,15 @@ import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.*;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.enterprise.context.ApplicationScoped;
 import java.util.Arrays;
 
 /**
  * Created by rsperoni on 03/05/17.
  */
-@Singleton
-@Startup
-@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
+@ApplicationScoped
 public class MongoClientProvider {
 
     private static String CONNECTION_STRING = "mongo";

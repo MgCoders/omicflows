@@ -2,7 +2,6 @@ package com.mgcoders.cwl;
 
 import com.mgcoders.db.Tool;
 import org.rabix.bindings.cwl.bean.*;
-import org.rabix.bindings.model.DataType;
 import org.rabix.common.json.BeanSerializer;
 import org.rabix.common.json.processor.BeanProcessorException;
 
@@ -59,56 +58,57 @@ public class RabixCwlOps implements CwlOps {
         //Mapeo las salidas y entradas de la tool al step
         List inputs = new ArrayList<>();
         if (cwlTool.getInputs() != null && cwlTool.getInputs().size() > 0) {
-            Map<String, Object> in = new HashMap<>();
             for (CWLInputPort inputPort : cwlTool.getInputs()) {
-                //Si me dicen como mapear esta input lo hago
+                Map<String, Object> in = new HashMap<>();
+                //Si me dicen como mapear hacia afuera esta input lo hago
                 if (inputMapping.get(inputPort.getId()) != null) {
-                    in.put(inputPort.getId(), inputMapping.get(inputPort.getId()));
+                    in.put("source", inputMapping.get(inputPort.getId()));
                 } else {
-                    in.put(inputPort.getId(), inputPort.getId());
+                    in.put("source", inputPort.getId());
                 }
+                in.put("id", inputPort.getId());
+                //Esto lo voy a tener que sacar
+                in.put("schema", inputPort.getSchema());
+                inputs.add(in);
             }
-            inputs.add(in);
+
         }
         List outputs = new ArrayList<>();
         if (cwlTool.getOutputs() != null && cwlTool.getOutputs().size() > 0) {
-            Map<String, Object> out = new HashMap<>();
             for (CWLOutputPort outputPort : cwlTool.getOutputs()) {
-                out.put(outputPort.getId(), outputPort.getId());
+                Map<String, Object> out = new HashMap<>();
+                out.put("id", outputPort.getId());
+                //Esto lo voy a tener que sacar
+                out.put("schema", outputPort.getSchema());
+                outputs.add(out);
             }
-            outputs.add(out);
         }
         CWLStep cwlStep = new CWLStep(toolName, cwlTool, new ArrayList<>(), null, null, inputs, outputs);
         return cwlStep;
     }
 
+
     public void addStep(CWLWorkflow cwlWorkflow, CWLStep cwlStep) {
 
         if (cwlStep.getInputs().size() > 0) {
-            //Segun lo arme, siempre hay a los sumo uno
-            Map<String, Object> in = cwlStep.getInputs().get(0);
             //Recorro la lista de inputs
-            for (String originalPortId : in.keySet()) {
-                String mappedPortId = (String) in.get(originalPortId);
-                DataType originalPortType = cwlStep.getApp().getInput(originalPortId).getDataType();
-                String portDescription = cwlStep.getApp().getInput(originalPortId).getDescription();
-                //TODO: y el resto de los campos?
-                CWLInputPort cwlInputPort = new CWLInputPort(mappedPortId, null, originalPortType, null, null, null, null, null, null, portDescription, null);
+            for (Map<String, Object> in : cwlStep.getInputs()) {
+                String mappedPortId = (String) in.get("source");
+                String schema = (String) in.get("schema");
+                in.remove("schema");
+                CWLInputPort cwlInputPort = new CWLInputPort(mappedPortId, null, schema, null, null, null, null, null, null, null, null);
                 cwlWorkflow.getInputs().add(cwlInputPort);
             }
         }
 
         if (cwlStep.getOutputs().size() > 0) {
-            //Segun lo arme, siempre hay a los sumo uno
-            Map<String, Object> out = cwlStep.getOutputs().get(0);
-            //Recorro la lista de inputs
-            for (String originalPortId : out.keySet()) {
-                String mappedPortId = (String) out.get(originalPortId);
-                DataType originalPortType = cwlStep.getApp().getOutput(originalPortId).getDataType();
-                String portDescription = cwlStep.getApp().getOutput(originalPortId).getDescription();
+            //Recorro outs
+            for (Map<String, Object> out : cwlStep.getOutputs()) {
+                String mappedPortId = (String) out.get("id");
                 String outputSource = cwlStep.getId() + '/' + mappedPortId;
-                //TODO: y el resto de los campos?
-                CWLOutputPort cwlOutputPort = new CWLOutputPort(mappedPortId, null, null, originalPortType, null, null, outputSource, null, null, portDescription);
+                String schema = (String) out.get("schema");
+                out.remove("schema");
+                CWLOutputPort cwlOutputPort = new CWLOutputPort(mappedPortId, null, null, schema, null, null, outputSource, null, null, null);
                 cwlWorkflow.getOutputs().add(cwlOutputPort);
             }
         }

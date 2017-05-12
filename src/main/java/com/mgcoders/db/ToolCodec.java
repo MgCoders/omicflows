@@ -21,7 +21,7 @@ public class ToolCodec extends AbstractCodec<Tool> {
     public Tool decode(BsonReader bsonReader, DecoderContext decoderContext) {
         Document document = documentCodec.decode(bsonReader, decoderContext);
         System.out.println("document " + document);
-        Tool tool = new Tool(document.getString("name"), document.getString("cwl"));
+        Tool tool = new Tool(document.getString("name"), document.getString("cwl"), document.getString("json"));
         tool.setId(document.getObjectId("_id"));
         return tool;
     }
@@ -33,6 +33,7 @@ public class ToolCodec extends AbstractCodec<Tool> {
         ObjectId id = tool.getId();
         String name = tool.getName();
         String cwl = tool.getCwl();
+        String json = tool.getJson();
 
         if (null != id) {
             document.put("_id", id);
@@ -44,6 +45,10 @@ public class ToolCodec extends AbstractCodec<Tool> {
 
         if (null != cwl) {
             document.put("cwl", cwl);
+        }
+
+        if (null != json) {
+            document.put("json", json);
         }
 
         documentCodec.encode(bsonWriter, document, encoderContext);
