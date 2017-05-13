@@ -4,20 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by rsperoni on 11/05/17.
+ * Created by rsperoni on 13/05/17.
  */
-public class Workflow {
+public class WorkflowStep {
 
     private String name;
     private String cwl;
     private String json;
     private Boolean complete;
 
-    private List<WorkflowStep> steps = new ArrayList<>();
-
+    private List<WorkflowIn> innerUnmatchedInputs = new ArrayList<>();
     private List<WorkflowIn> neededInputs = new ArrayList<>();
     private List<WorkflowOut> neededOutputs = new ArrayList<>();
-
 
     public String getName() {
         return name;
@@ -51,15 +49,15 @@ public class Workflow {
         this.complete = complete;
     }
 
-    public List<WorkflowStep> getSteps() {
-        return steps;
-    }
-
-    public List<WorkflowIn> getNeededInputs() {
-        return neededInputs;
+    public List<WorkflowIn> getInnerUnmatchedInputs() {
+        return innerUnmatchedInputs;
     }
 
     public List<WorkflowOut> getNeededOutputs() {
         return neededOutputs;
+    }
+
+    public List<WorkflowIn> getNeededInputs() {
+        return neededInputs;
     }
 }

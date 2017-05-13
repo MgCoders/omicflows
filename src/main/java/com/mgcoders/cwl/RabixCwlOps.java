@@ -1,6 +1,6 @@
 package com.mgcoders.cwl;
 
-import com.mgcoders.db.Tool;
+import com.mgcoders.db.*;
 import org.rabix.bindings.cwl.bean.*;
 import org.rabix.common.json.BeanSerializer;
 import org.rabix.common.json.processor.BeanProcessorException;
@@ -9,8 +9,7 @@ import javax.enterprise.inject.Default;
 import java.io.IOException;
 import java.util.*;
 
-import static com.mgcoders.utils.YamlUtils.jsonStringToMap;
-import static com.mgcoders.utils.YamlUtils.mapToJsonString;
+import static com.mgcoders.utils.YamlUtils.*;
 
 
 /**
@@ -31,11 +30,144 @@ public class RabixCwlOps implements CwlOps {
         return cwl != null && cwl.isWorkflow();
     }
 
+    @Override
+    public Workflow createWorkflow(String name) {
+        Workflow workflow = new Workflow();
+
+        workflow.setName(name);
+        workflow.setComplete(false);
+
+        CWLWorkflow cwlWorkflow = new CWLWorkflow();
+        cwlWorkflow.setCwlVersion("v1.0");
+
+        workflow.setJson(serializeWorkflow(cwlWorkflow));
+        return workflow;
+    }
+
+    @Override
+    public WorkflowStep createWorkflowStep(Tool tool, List<WorkflowIn> mappedInputs) {
+        //Armo la Tool
+        CWLCommandLineTool cwlTool = deserializeCommandLineTool(tool.getJson());
+        //Preparo los mapeos
+        Map<String, String> mappings = new HashMap<>();
+        for (WorkflowIn in : mappedInputs) {
+            mappings.put(in.getId(), in.getSource());
+        }
+        //Armo el Step
+        WorkflowStep workflowStep = new WorkflowStep();
+        CWLStep cwlStep = stepFromTool(tool.getName(), cwlTool, mappings);
+
+        workflowStep.setName(cwlStep.getId());
+        workflowStep.setJson(serializeStep(cwlStep));
+
+        for (Map in : cwlStep.getInputs()) {
+            WorkflowIn workflowIn = new WorkflowIn((String) in.get("id"), (String) in.get("source"), (String) in.get("schema"));
+            if (workflowIn.isMapped()) {
+                workflowStep.getInnerUnmatchedInputs().add(workflowIn);
+            } else {
+                workflowStep.getNeededInputs().add(workflowIn);
+            }
+        }
+
+        for (Map out : cwlStep.getOutputs()) {
+            workflowStep.getNeededOutputs().add(new WorkflowOut((String) out.get("id"), (String) out.get("schema")));
+        }
+
+        return workflowStep;
+    }
+
+    @Override
+    public Workflow addStepToWorkflow(Workflow workflow, WorkflowStep step) throws Exception {
+        CWLWorkflow cwlWorkflow = deserializeWorkflow(workflow.getJson());
+        CWLStep cwlStep = deserializeStep(step.getJson());
+
+        Map<String, String> mapping = new HashMap<>();
+        for (WorkflowIn workflowIn : step.getInnerUnmatchedInputs()) {
+            mapping.put(workflowIn.getId(), workflowIn.getSource());
+        }
+
+        addStep(cwlWorkflow, cwlStep, mapping);
+
+        //Postprocesamiento
+        String json = serializeWorkflow(cwlWorkflow);
+        //json = postProcessJsonWorkflow(json);
+
+        //Actualizo Json
+        workflow.setJson(json);
+
+
+        //Tengo que resolver los unmatched inputs de este step
+        List<WorkflowIn> resolvedInputs = new ArrayList<>();
+        for (WorkflowIn unResolvedInput : step.getInnerUnmatchedInputs()) {
+            if (unResolvedInput.isMapped()) {
+                String mappedTool = unResolvedInput.getSourceMappedToolName();
+                String mappedPort = unResolvedInput.getSourceMappedPortName();
+                //Elimino los outpus de los steps que correspnda.
+                Optional<WorkflowStep> foundStep = workflow.getSteps().stream().filter(step1 -> step1.getName().equals(mappedTool)).findFirst();
+                if (foundStep.isPresent()) {
+                    Optional<WorkflowOut> toRemove = foundStep.get().getNeededOutputs().stream().filter(workflowOut -> workflowOut.getId().equals(mappedPort)).findFirst();
+                    if (toRemove.isPresent()) {
+                        foundStep.get().getNeededOutputs().remove(toRemove.get());
+                        workflow.getNeededOutputs().remove(toRemove.get());
+                        resolvedInputs.add(unResolvedInput);
+                    }
+                }
+            }
+        }
+        step.getInnerUnmatchedInputs().removeAll(resolvedInputs);
+
+        if (step.getInnerUnmatchedInputs().size() > 0) {
+            throw new Exception("Step invalido");
+        }
+
+        //Agrego los inputs
+        workflow.getNeededInputs().addAll(step.getNeededInputs());
+        //Agrego los outputs
+        workflow.getNeededOutputs().addAll(step.getNeededOutputs());
+
+        //Agrego Step
+        workflow.getSteps().add(step);
+
+        return workflow;
+    }
+
+    @Override
+    public Workflow postProcessWorkflow(Workflow workflow) throws Exception {
+        try {
+            workflow.setJson(postProcessJsonWorkflow(workflow.getJson()));
+            workflow.setCwl(jsonToCwlFileContent(workflow.getJson()));
+            workflow.setComplete(true);
+        } catch (IOException e) {
+            throw new Exception("Workflow invalido");
+        }
+        return workflow;
+    }
+
+
     private CWLWorkflow deserializeWorkflow(String json) {
         CWLWorkflow cwl = null;
         try {
             cwl = BeanSerializer.deserialize(json, CWLWorkflow.class);
         } catch (BeanProcessorException ignored) {}
+        return cwl;
+    }
+
+    private String serializeWorkflow(CWLWorkflow workflow) {
+        String cwl = BeanSerializer.serializeFull(workflow);
+        return cwl;
+    }
+
+    private CWLStep deserializeStep(String json) {
+        CWLStep cwl = null;
+        try {
+            cwl = BeanSerializer.deserialize(json, CWLStep.class);
+        } catch (BeanProcessorException ignored) {
+        }
+        return cwl;
+    }
+
+    private String serializeStep(CWLStep step) {
+        String cwl = BeanSerializer.serializeFull(step);
         return cwl;
     }
 
@@ -49,13 +181,7 @@ public class RabixCwlOps implements CwlOps {
     }
 
 
-    public CWLStep stepFromTool(Tool tool, Map<String, String> inputMapping) {
-        CWLCommandLineTool cwlTool = deserializeCommandLineTool(tool.getJson());
-        return stepFromTool(tool.getName(), cwlTool, inputMapping);
-
-    }
-
-    public String postProcessJsonWorkflow(String json) throws IOException {
+    private String postProcessJsonWorkflow(String json) throws IOException {
         Map<String, Object> map = jsonStringToMap(json);
         map.put("class", "Workflow");
         deleteMapContentRecursive(map, Arrays.asList("successCodes", "dataLinks", "scatter", "scatterMethod"));
@@ -117,7 +243,7 @@ public class RabixCwlOps implements CwlOps {
     }
 
 
-    public void addStep(CWLWorkflow cwlWorkflow, CWLStep cwlStep, Map<String, String> inputMapping) {
+    private void addStep(CWLWorkflow cwlWorkflow, CWLStep cwlStep, Map<String, String> inputMapping) {
 
         //Resuelvo inputs
         if (cwlStep.getInputs().size() > 0) {
@@ -127,7 +253,7 @@ public class RabixCwlOps implements CwlOps {
                 String schema = (String) in.get("schema");
                 in.remove("schema");
                 //Me fijo si esta input no esta resuelta ya por un mapeo
-                if (inputMapping.get(in.get("id")) == null || inputMapping.get(in.get("id")) != mappedPortId) {
+                if (inputMapping.get(in.get("id")) == null || !inputMapping.get(in.get("id")).equals(mappedPortId)) {
                     CWLInputPort cwlInputPort = new CWLInputPort(mappedPortId, null, schema, null, null, null, null, null, null, null, null);
                     cwlWorkflow.getInputs().add(cwlInputPort);
                 }
