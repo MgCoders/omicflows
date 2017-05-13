@@ -14,6 +14,9 @@ public class WorkflowIn extends AbstractMongoEntity<WorkflowIn> {
     private Boolean mapped;
     private String schema;
 
+    public WorkflowIn() {
+    }
+
     public WorkflowIn(String name, String sourceMappedToolName, String sourceMappedPortName, Boolean mapped, String schema) {
         this.name = name;
         this.sourceMappedToolName = sourceMappedToolName;

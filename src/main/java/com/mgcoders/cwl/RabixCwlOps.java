@@ -31,8 +31,8 @@ public class RabixCwlOps implements CwlOps {
     }
 
     @Override
-    public Workflow createWorkflow(String name) {
-        Workflow workflow = new Workflow();
+    public Workflow createWorkflow(String name, String userId) {
+        Workflow workflow = new Workflow(userId);
 
         workflow.setName(name);
         workflow.setComplete(false);

@@ -15,11 +15,12 @@ public class WorkflowStep extends AbstractMongoEntity<WorkflowStep> {
     private String cwl;
     private String json;
     private Boolean complete;
-
     private List<WorkflowIn> innerUnmatchedInputs = new ArrayList<>();
     private List<WorkflowIn> neededInputs = new ArrayList<>();
     private List<WorkflowOut> neededOutputs = new ArrayList<>();
 
+    public WorkflowStep() {
+    }
 
     public String getName() {
         return name;

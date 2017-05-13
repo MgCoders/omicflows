@@ -14,15 +14,21 @@ public class Workflow {
 
     @Id
     private String id;
+    private String userId;
     private String name;
     private String cwl;
     private String json;
     private Boolean complete = false;
-
     private List<WorkflowStep> steps = new ArrayList<>();
-
     private List<WorkflowIn> neededInputs = new ArrayList<>();
     private List<WorkflowOut> neededOutputs = new ArrayList<>();
+
+    public Workflow() {
+    }
+
+    public Workflow(String userId) {
+        this.userId = userId;
+    }
 
     public String getId() {
         return id;
@@ -86,5 +92,13 @@ public class Workflow {
 
     public void setNeededOutputs(List<WorkflowOut> neededOutputs) {
         this.neededOutputs = neededOutputs;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

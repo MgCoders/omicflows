@@ -49,7 +49,7 @@ public class RabixCwlTest {
         //Step
         WorkflowStep workflowStepArg = rabixCwlOps.createWorkflowStep(tool, Arrays.asList());
         //Workflow
-        Workflow workflow = rabixCwlOps.createWorkflow("1st-echo-generated.cwl");
+        Workflow workflow = rabixCwlOps.createWorkflow("1st-echo-generated.cwl", "nada");
         rabixCwlOps.addStepToWorkflow(workflow, workflowStepArg);
         workflow = rabixCwlOps.postProcessWorkflow(workflow);
 
@@ -74,7 +74,7 @@ public class RabixCwlTest {
         //Step
         WorkflowStep workflowStepTar = rabixCwlOps.createWorkflowStep(toolTar, Arrays.asList());
         //Workflow
-        Workflow workflow = rabixCwlOps.createWorkflow("pruebaTool.cwl");
+        Workflow workflow = rabixCwlOps.createWorkflow("pruebaTool.cwl", "nada");
         rabixCwlOps.addStepToWorkflow(workflow, workflowStepTar);
         rabixCwlOps.addStepToWorkflow(workflow, workflowStepArg);
 

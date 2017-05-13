@@ -25,7 +25,7 @@ public interface CwlOps {
      * @param name
      * @return
      */
-    Workflow createWorkflow(String name);
+    Workflow createWorkflow(String name, String userId);
 
 
     /**

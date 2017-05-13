@@ -11,6 +11,9 @@ public class WorkflowOut extends AbstractMongoEntity<WorkflowOut> {
     private String name;
     private String schema;
 
+    public WorkflowOut() {
+    }
+
     public WorkflowOut(String name, String schema) {
         this.name = name;
         this.schema = schema;
