@@ -1,13 +1,13 @@
 #!/usr/bin/env cwl-runner
 
 cwlVersion: v1.0
-id: main
+name: main
 class: Workflow
 requirements:
 - class: MultipleInputFeatureRequirement
 inputs: []
 outputs:
-- id: output
+- name: output
   type: File
   outputSource: linkobj/executable
 steps:

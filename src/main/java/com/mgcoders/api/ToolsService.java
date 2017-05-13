@@ -2,7 +2,7 @@ package com.mgcoders.api;
 
 import com.mgcoders.cwl.CwlOps;
 import com.mgcoders.db.MongoClientProvider;
-import com.mgcoders.db.Tool;
+import com.mgcoders.db.entities.Tool;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;

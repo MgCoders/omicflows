@@ -1,4 +1,6 @@
-package com.mgcoders.db;
+package com.mgcoders.db.entities;
+
+import eu.dozd.mongo.annotation.Embedded;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +8,8 @@ import java.util.List;
 /**
  * Created by rsperoni on 13/05/17.
  */
-public class WorkflowStep {
+@Embedded
+public class WorkflowStep extends AbstractMongoEntity<WorkflowStep> {
 
     private String name;
     private String cwl;
@@ -16,6 +19,7 @@ public class WorkflowStep {
     private List<WorkflowIn> innerUnmatchedInputs = new ArrayList<>();
     private List<WorkflowIn> neededInputs = new ArrayList<>();
     private List<WorkflowOut> neededOutputs = new ArrayList<>();
+
 
     public String getName() {
         return name;
@@ -53,11 +57,23 @@ public class WorkflowStep {
         return innerUnmatchedInputs;
     }
 
-    public List<WorkflowOut> getNeededOutputs() {
-        return neededOutputs;
+    public void setInnerUnmatchedInputs(List<WorkflowIn> innerUnmatchedInputs) {
+        this.innerUnmatchedInputs = innerUnmatchedInputs;
     }
 
     public List<WorkflowIn> getNeededInputs() {
         return neededInputs;
+    }
+
+    public void setNeededInputs(List<WorkflowIn> neededInputs) {
+        this.neededInputs = neededInputs;
+    }
+
+    public List<WorkflowOut> getNeededOutputs() {
+        return neededOutputs;
+    }
+
+    public void setNeededOutputs(List<WorkflowOut> neededOutputs) {
+        this.neededOutputs = neededOutputs;
     }
 }

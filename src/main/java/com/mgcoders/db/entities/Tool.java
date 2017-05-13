@@ -1,5 +1,8 @@
-package com.mgcoders.db;
+package com.mgcoders.db.entities;
 
+
+import eu.dozd.mongo.annotation.Entity;
+import eu.dozd.mongo.annotation.Id;
 
 import java.io.IOException;
 
@@ -8,9 +11,11 @@ import static com.mgcoders.utils.YamlUtils.cwlFileContentToJson;
 /**
  * Created by rsperoni on 02/05/17.
  */
-public class Tool extends AbstractMongoEntity<Tool> {
+@Entity
+public class Tool {
 
-
+    @Id
+    private String id;
     private String name;
     private String cwl;
     private String json;
@@ -22,6 +27,14 @@ public class Tool extends AbstractMongoEntity<Tool> {
     }
 
     public Tool() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -44,6 +57,10 @@ public class Tool extends AbstractMongoEntity<Tool> {
         return json;
     }
 
+    public void setJson(String json) {
+        this.json = json;
+    }
+
     public void generateJson() throws IOException {
         this.json = cwlFileContentToJson(cwl);
     }
@@ -51,9 +68,10 @@ public class Tool extends AbstractMongoEntity<Tool> {
     @Override
     public String toString() {
         return "Tool{" +
-                "name='" + name + '\'' +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
                 ", cwl='" + cwl + '\'' +
-                ", _id=" + _id +
+                ", json='" + json + '\'' +
                 '}';
     }
 }

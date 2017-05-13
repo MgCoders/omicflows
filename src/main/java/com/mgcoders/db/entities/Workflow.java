@@ -1,4 +1,7 @@
-package com.mgcoders.db;
+package com.mgcoders.db.entities;
+
+import eu.dozd.mongo.annotation.Entity;
+import eu.dozd.mongo.annotation.Id;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,18 +9,28 @@ import java.util.List;
 /**
  * Created by rsperoni on 11/05/17.
  */
+@Entity
 public class Workflow {
 
+    @Id
+    private String id;
     private String name;
     private String cwl;
     private String json;
-    private Boolean complete;
+    private Boolean complete = false;
 
     private List<WorkflowStep> steps = new ArrayList<>();
 
     private List<WorkflowIn> neededInputs = new ArrayList<>();
     private List<WorkflowOut> neededOutputs = new ArrayList<>();
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -55,11 +68,23 @@ public class Workflow {
         return steps;
     }
 
+    public void setSteps(List<WorkflowStep> steps) {
+        this.steps = steps;
+    }
+
     public List<WorkflowIn> getNeededInputs() {
         return neededInputs;
     }
 
+    public void setNeededInputs(List<WorkflowIn> neededInputs) {
+        this.neededInputs = neededInputs;
+    }
+
     public List<WorkflowOut> getNeededOutputs() {
         return neededOutputs;
+    }
+
+    public void setNeededOutputs(List<WorkflowOut> neededOutputs) {
+        this.neededOutputs = neededOutputs;
     }
 }

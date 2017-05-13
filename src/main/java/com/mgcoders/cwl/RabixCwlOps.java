@@ -1,6 +1,6 @@
 package com.mgcoders.cwl;
 
-import com.mgcoders.db.*;
+import com.mgcoders.db.entities.*;
 import org.rabix.bindings.cwl.bean.*;
 import org.rabix.common.json.BeanSerializer;
 import org.rabix.common.json.processor.BeanProcessorException;
@@ -48,21 +48,24 @@ public class RabixCwlOps implements CwlOps {
     public WorkflowStep createWorkflowStep(Tool tool, List<WorkflowIn> mappedInputs) {
         //Armo la Tool
         CWLCommandLineTool cwlTool = deserializeCommandLineTool(tool.getJson());
-        //Preparo los mapeos
-        Map<String, String> mappings = new HashMap<>();
-        for (WorkflowIn in : mappedInputs) {
-            mappings.put(in.getId(), in.getSource());
-        }
+
         //Armo el Step
         WorkflowStep workflowStep = new WorkflowStep();
-        CWLStep cwlStep = stepFromTool(tool.getName(), cwlTool, mappings);
+        CWLStep cwlStep = stepFromTool(tool.getName(), cwlTool, mappedInputs);
 
         workflowStep.setName(cwlStep.getId());
         workflowStep.setJson(serializeStep(cwlStep));
 
         for (Map in : cwlStep.getInputs()) {
-            WorkflowIn workflowIn = new WorkflowIn((String) in.get("id"), (String) in.get("source"), (String) in.get("schema"));
-            if (workflowIn.isMapped()) {
+            String mappedTool = null;
+            String mappedPort = null;
+            if (in.get("source") != null && ((String) in.get("source")).split("/").length > 1) {
+                mappedTool = ((String) in.get("source")).split("/")[0];
+                mappedPort = ((String) in.get("source")).split("/")[1];
+            }
+            Boolean mapped = mappedPort != null && mappedTool != null;
+            WorkflowIn workflowIn = new WorkflowIn((String) in.get("id"), mappedTool, mappedPort, mapped, (String) in.get("schema"));
+            if (workflowIn.getMapped()) {
                 workflowStep.getInnerUnmatchedInputs().add(workflowIn);
             } else {
                 workflowStep.getNeededInputs().add(workflowIn);
@@ -83,7 +86,7 @@ public class RabixCwlOps implements CwlOps {
 
         Map<String, String> mapping = new HashMap<>();
         for (WorkflowIn workflowIn : step.getInnerUnmatchedInputs()) {
-            mapping.put(workflowIn.getId(), workflowIn.getSource());
+            mapping.put(workflowIn.getName(), workflowIn.getSourceMappedToolName() + "/" + workflowIn.getSourceMappedPortName());
         }
 
         addStep(cwlWorkflow, cwlStep, mapping);
@@ -99,13 +102,13 @@ public class RabixCwlOps implements CwlOps {
         //Tengo que resolver los unmatched inputs de este step
         List<WorkflowIn> resolvedInputs = new ArrayList<>();
         for (WorkflowIn unResolvedInput : step.getInnerUnmatchedInputs()) {
-            if (unResolvedInput.isMapped()) {
+            if (unResolvedInput.getMapped()) {
                 String mappedTool = unResolvedInput.getSourceMappedToolName();
                 String mappedPort = unResolvedInput.getSourceMappedPortName();
                 //Elimino los outpus de los steps que correspnda.
                 Optional<WorkflowStep> foundStep = workflow.getSteps().stream().filter(step1 -> step1.getName().equals(mappedTool)).findFirst();
                 if (foundStep.isPresent()) {
-                    Optional<WorkflowOut> toRemove = foundStep.get().getNeededOutputs().stream().filter(workflowOut -> workflowOut.getId().equals(mappedPort)).findFirst();
+                    Optional<WorkflowOut> toRemove = foundStep.get().getNeededOutputs().stream().filter(workflowOut -> workflowOut.getName().equals(mappedPort)).findFirst();
                     if (toRemove.isPresent()) {
                         foundStep.get().getNeededOutputs().remove(toRemove.get());
                         workflow.getNeededOutputs().remove(toRemove.get());
@@ -209,15 +212,16 @@ public class RabixCwlOps implements CwlOps {
     }
 
 
-    private CWLStep stepFromTool(String toolName, CWLCommandLineTool cwlTool, Map<String, String> inputMapping) {
+    private CWLStep stepFromTool(String toolName, CWLCommandLineTool cwlTool, List<WorkflowIn> inputMappings) {
         //Mapeo las salidas y entradas de la tool al step
         List inputs = new ArrayList<>();
         if (cwlTool.getInputs() != null && cwlTool.getInputs().size() > 0) {
             for (CWLInputPort inputPort : cwlTool.getInputs()) {
                 Map<String, Object> in = new HashMap<>();
                 //Si me dicen como mapear hacia afuera esta input lo hago
-                if (inputMapping.get(inputPort.getId()) != null) {
-                    in.put("source", inputMapping.get(inputPort.getId()));
+                Optional<WorkflowIn> foundMapping = inputMappings.stream().filter(workflowIn -> workflowIn.getName().equals(inputPort.getId())).findFirst();
+                if (foundMapping.isPresent()) {
+                    in.put("source", foundMapping.get().getSourceMappedToolName() + "/" + foundMapping.get().getSourceMappedPortName());
                 } else {
                     in.put("source", inputPort.getId());
                 }

@@ -1,10 +1,10 @@
 package com.mgcoders.cwl;
 
 
-import com.mgcoders.db.Tool;
-import com.mgcoders.db.Workflow;
-import com.mgcoders.db.WorkflowIn;
-import com.mgcoders.db.WorkflowStep;
+import com.mgcoders.db.entities.Tool;
+import com.mgcoders.db.entities.Workflow;
+import com.mgcoders.db.entities.WorkflowIn;
+import com.mgcoders.db.entities.WorkflowStep;
 import com.mgcoders.utils.YamlUtils;
 import org.junit.Test;
 
@@ -63,7 +63,7 @@ public class RabixCwlTest {
         String jsonFile = cwlFileContentToJson(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
         Tool toolArg = new Tool("arguments.cwl", YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8), jsonFile);
         //Ins
-        WorkflowIn workflowIn = new WorkflowIn("src", "tar-param.cwl/example_out", "File");
+        WorkflowIn workflowIn = new WorkflowIn("src", "tar-param.cwl", "example_out", true, "File");
         //Step
         WorkflowStep workflowStepArg = rabixCwlOps.createWorkflowStep(toolArg, Arrays.asList(workflowIn));
 

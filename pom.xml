@@ -52,6 +52,11 @@
             <artifactId>rabix-bindings-cwl</artifactId>
             <version>1.0.0-rc5</version>
         </dependency>
+        <dependency>
+            <groupId>eu.dozd</groupId>
+            <artifactId>mongo-mapper</artifactId>
+            <version>1.0.9</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>omicflows-backend</finalName>

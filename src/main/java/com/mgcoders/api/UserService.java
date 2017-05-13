@@ -1,7 +1,7 @@
 package com.mgcoders.api;
 
 import com.mgcoders.db.MongoClientProvider;
-import com.mgcoders.db.User;
+import com.mgcoders.db.entities.User;
 import com.mgcoders.utils.KeyGenerator;
 import com.mgcoders.utils.PasswordUtils;
 import io.jsonwebtoken.Jwts;
@@ -66,6 +66,7 @@ public class UserService {
             //return Response.ok().header(AUTHORIZATION, "Bearer " + token).build();
 
         } catch (Exception e) {
+            e.printStackTrace();
             return Response.status(UNAUTHORIZED).build();
         }
     }

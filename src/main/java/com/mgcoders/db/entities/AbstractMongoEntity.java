@@ -1,4 +1,4 @@
-package com.mgcoders.db;
+package com.mgcoders.db.entities;
 
 import org.bson.BsonDocument;
 import org.bson.BsonDocumentWrapper;

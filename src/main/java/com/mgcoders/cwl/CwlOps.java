@@ -1,9 +1,9 @@
 package com.mgcoders.cwl;
 
-import com.mgcoders.db.Tool;
-import com.mgcoders.db.Workflow;
-import com.mgcoders.db.WorkflowIn;
-import com.mgcoders.db.WorkflowStep;
+import com.mgcoders.db.entities.Tool;
+import com.mgcoders.db.entities.Workflow;
+import com.mgcoders.db.entities.WorkflowIn;
+import com.mgcoders.db.entities.WorkflowStep;
 
 import java.util.List;
 

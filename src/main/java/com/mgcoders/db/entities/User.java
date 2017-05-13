@@ -1,14 +1,28 @@
-package com.mgcoders.db;
+package com.mgcoders.db.entities;
+
+import eu.dozd.mongo.annotation.Entity;
+import eu.dozd.mongo.annotation.Id;
 
 /**
  * Created by rsperoni on 05/05/17.
  */
-public class User extends AbstractMongoEntity<User> {
+@Entity
+public class User {
 
+    @Id
+    private String id;
     private String email;
     private String password;
 
     public User() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -30,9 +44,8 @@ public class User extends AbstractMongoEntity<User> {
     @Override
     public String toString() {
         return "User{" +
-                "email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", _id=" + _id +
+                "id='" + id + '\'' +
+                ", email='" + email + '\'' +
                 '}';
     }
 }
