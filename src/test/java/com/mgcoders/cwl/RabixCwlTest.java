@@ -80,6 +80,7 @@ public class RabixCwlTest {
         rabixCwlOps.addStep(cwlWorkflow, cwlStepArg, inputMapping);
 
         String resultado = BeanSerializer.serializeFull(cwlWorkflow);
+        resultado = rabixCwlOps.postProcessJsonWorkflow(resultado);
         System.out.println(jsonToCwlFileContent(resultado));
 
         /*GOL*/

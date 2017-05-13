@@ -1,17 +1,16 @@
 package com.mgcoders.cwl;
 
 import com.mgcoders.db.Tool;
-import com.mgcoders.utils.YamlUtils;
 import org.rabix.bindings.cwl.bean.*;
 import org.rabix.common.json.BeanSerializer;
 import org.rabix.common.json.processor.BeanProcessorException;
 
 import javax.enterprise.inject.Default;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.mgcoders.utils.YamlUtils.jsonStringToMap;
+import static com.mgcoders.utils.YamlUtils.mapToJsonString;
 
 
 /**
@@ -56,11 +55,33 @@ public class RabixCwlOps implements CwlOps {
 
     }
 
-    private void postProcessJsonWorkflow(String json) throws IOException {
-        Map<String, Object> map = YamlUtils.jsonStringToMap(json);
+    public String postProcessJsonWorkflow(String json) throws IOException {
+        Map<String, Object> map = jsonStringToMap(json);
         map.put("class", "Workflow");
-        map.remove("successClass");
+        deleteMapContentRecursive(map, Arrays.asList("successCodes", "dataLinks", "scatter", "scatterMethod"));
+        return mapToJsonString(map);
     }
+
+    private void deleteMapContentRecursive(Object object, List<String> keys) {
+        if (object instanceof Map) {
+            Map map = (Map) object;
+            for (String key : keys) {
+                try {
+                    map.remove(key);
+                } catch (Exception ignore) {
+                }
+                for (Object element : map.values()) {
+                    deleteMapContentRecursive(element, keys);
+                }
+            }
+        } else if (object instanceof List) {
+            List list = (List) object;
+            for (Object element : list) {
+                deleteMapContentRecursive(element, keys);
+            }
+        }
+    }
+
 
     private CWLStep stepFromTool(String toolName, CWLCommandLineTool cwlTool, Map<String, String> inputMapping) {
         //Mapeo las salidas y entradas de la tool al step
@@ -91,7 +112,7 @@ public class RabixCwlOps implements CwlOps {
                 outputs.add(out);
             }
         }
-        CWLStep cwlStep = new CWLStep(toolName, cwlTool, new ArrayList<>(), null, null, inputs, outputs);
+        CWLStep cwlStep = new CWLStep(toolName, cwlTool, null, null, null, inputs, outputs);
         return cwlStep;
     }
 
