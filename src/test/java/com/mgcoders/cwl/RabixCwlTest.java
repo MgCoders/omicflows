@@ -27,14 +27,16 @@ public class RabixCwlTest {
     public void commandLineToolTest() throws IOException {
         File file = new File(getClass().getClassLoader().getResource("tools/qiime-biom-convert.cwl").getFile());
         String jsonCwl = cwlFileContentToJson(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
-        assertTrue(rabixCwlOps.isValidCwlTool(jsonCwl));
+        Tool tool = new Tool("qiime-biom-convert.cwl", YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8), jsonCwl);
+        assertTrue(rabixCwlOps.isValidCwlTool(tool));
     }
 
     @Test
     public void commandLineTool2Test() throws IOException {
         File file = new File(getClass().getClassLoader().getResource("tools/qiime-biom-summarize_table.cwl").getFile());
         String jsonCwl = cwlFileContentToJson(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
-        assertTrue(rabixCwlOps.isValidCwlTool(jsonCwl));
+        Tool tool = new Tool("qiime-biom-summarize_table.cwl", YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8), jsonCwl);
+        assertTrue(rabixCwlOps.isValidCwlTool(tool));
 
     }
 

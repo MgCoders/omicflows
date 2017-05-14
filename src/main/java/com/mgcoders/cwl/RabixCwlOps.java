@@ -19,14 +19,14 @@ import static com.mgcoders.utils.YamlUtils.*;
 public class RabixCwlOps implements CwlOps {
 
     @Override
-    public Boolean isValidCwlTool(String json) {
-        CWLCommandLineTool cwl = deserializeCommandLineTool(json);
+    public Boolean isValidCwlTool(Tool tool) {
+        CWLCommandLineTool cwl = deserializeCommandLineTool(tool.getJson());
         return cwl!=null && cwl.isCommandLineTool();
     }
 
     @Override
-    public Boolean isValidCwlWorkflow(String json) {
-        CWLWorkflow cwl = deserializeWorkflow(json);
+    public Boolean isValidCwlWorkflow(Workflow workflow) {
+        CWLWorkflow cwl = deserializeWorkflow(workflow.getJson());
         return cwl != null && cwl.isWorkflow();
     }
 

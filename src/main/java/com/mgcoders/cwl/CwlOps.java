@@ -14,9 +14,9 @@ import java.util.List;
  */
 public interface CwlOps {
 
-    Boolean isValidCwlTool(String json);
+    Boolean isValidCwlTool(Tool tool);
 
-    Boolean isValidCwlWorkflow(String json);
+    Boolean isValidCwlWorkflow(Workflow workflow);
 
     /**
      * Crear un WF de cero, a esta altura incompleto.

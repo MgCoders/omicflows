@@ -42,7 +42,7 @@ public class ToolsService {
     public Response newTool(Tool tool) {
         try {
             tool.generateJson();
-            if (cwlOps.isValidCwlTool(tool.getJson())) {
+            if (cwlOps.isValidCwlTool(tool)) {
                 mongoClientProvider.getToolCollection().insertOne(tool);
                 return Response.status(Response.Status.ACCEPTED).entity(tool).build();
             }
