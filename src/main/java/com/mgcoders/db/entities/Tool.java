@@ -19,6 +19,7 @@ public class Tool {
     private String name;
     private String cwl;
     private String json;
+    private String descripcion;
 
     public Tool(String name, String cwl, String json) {
         this.name = name;
@@ -27,6 +28,14 @@ public class Tool {
     }
 
     public Tool() {
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 
     public String getId() {

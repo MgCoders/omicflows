@@ -9,7 +9,7 @@ import java.util.List;
  * Created by rsperoni on 13/05/17.
  */
 @Embedded
-public class WorkflowStep extends AbstractMongoEntity<WorkflowStep> {
+public class WorkflowStep {
 
     private String name;
     private String cwl;

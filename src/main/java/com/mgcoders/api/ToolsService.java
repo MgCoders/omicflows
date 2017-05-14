@@ -30,21 +30,21 @@ public class ToolsService {
     }
 
     @GET
-    @JWTTokenNeeded
+    //@JWTTokenNeeded
     @Produces(MediaType.APPLICATION_JSON)
     public List<Tool> get() {
         return mongoClientProvider.getToolCollection().find(Tool.class).into(new ArrayList<>());
     }
 
     @POST
-    @JWTTokenNeeded
+    //@JWTTokenNeeded
     @Consumes(MediaType.APPLICATION_JSON)
     public Response newTool(Tool tool) {
         try {
             tool.generateJson();
             if (cwlOps.isValidCwlTool(tool.getJson())) {
                 mongoClientProvider.getToolCollection().insertOne(tool);
-                return Response.status(Response.Status.ACCEPTED).build();
+                return Response.status(Response.Status.ACCEPTED).entity(tool).build();
             }
         } catch (Exception ignored) {
         }

@@ -2,11 +2,13 @@ package com.mgcoders.db.entities;
 
 import eu.dozd.mongo.annotation.Embedded;
 
+import java.util.Objects;
+
 /**
  * Created by rsperoni on 13/05/17.
  */
 @Embedded
-public class WorkflowIn extends AbstractMongoEntity<WorkflowIn> {
+public class WorkflowIn {
 
     private String name;
     private String sourceMappedToolName;
@@ -66,5 +68,25 @@ public class WorkflowIn extends AbstractMongoEntity<WorkflowIn> {
 
     public void setMapped(Boolean mapped) {
         this.mapped = mapped;
+    }
+
+    /**
+     * Los nombres de los puertos son unicos,
+     * es importante para el borrado.
+     *
+     * @param o
+     * @return
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WorkflowIn that = (WorkflowIn) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }
