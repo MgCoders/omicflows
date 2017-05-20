@@ -88,4 +88,20 @@ public class RabixCwlTest {
 
     }
 
+    @Test
+    public void toolValidateMappingFileToWorkflow() throws Exception {
+        //Tool
+        File toolvalidate = new File(getClass().getClassLoader().getResource("tools/validate_mapping_file.cwl").getFile());
+        String jsonValidate = cwlFileContentToJson(YamlUtils.readFile(toolvalidate.getPath(), StandardCharsets.UTF_8));
+        Tool tool = new Tool("validate_mapping_file.cwl", YamlUtils.readFile(toolvalidate.getPath(), StandardCharsets.UTF_8), jsonValidate);
+        //Step
+        WorkflowStep workflowStepArg = rabixCwlOps.createWorkflowStep(tool, Arrays.asList());
+        //Workflow
+        Workflow workflow = rabixCwlOps.createWorkflow("validate_mapping_file_wf_generated.cwl", "nada");
+        rabixCwlOps.addStepToWorkflow(workflow, workflowStepArg);
+        workflow = rabixCwlOps.postProcessWorkflow(workflow);
+
+        System.out.println(workflow.getCwl());
+    }
+
 }

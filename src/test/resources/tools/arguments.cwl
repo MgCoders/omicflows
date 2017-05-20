@@ -4,8 +4,8 @@ label: Example trivial wrapper for Java 7 compiler
 baseCommand: javac
 hints:
   DockerRequirement:
-    dockerPull: java:7
-baseCommand: javac
+    dockerPull: mgcoders/qiime
+baseCommand: source activate qiime1;print_qiime_config.py -t
 arguments: ["-d", $(runtime.outdir)]
 inputs:
   src:

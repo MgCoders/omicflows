@@ -57,6 +57,12 @@
             <artifactId>mongo-mapper</artifactId>
             <version>1.0.9</version>
         </dependency>
+        <dependency>
+            <groupId>com.airhacks</groupId>
+            <artifactId>jaxrs-cors</artifactId>
+            <version>0.0.2</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     <build>
         <finalName>omicflows-backend</finalName>
