@@ -5,6 +5,7 @@ import eu.dozd.mongo.annotation.Entity;
 import eu.dozd.mongo.annotation.Id;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import static com.mgcoders.utils.YamlUtils.cwlFileContentToJson;
 
@@ -12,7 +13,7 @@ import static com.mgcoders.utils.YamlUtils.cwlFileContentToJson;
  * Created by rsperoni on 02/05/17.
  */
 @Entity
-public class Tool {
+public class Tool implements Serializable {
 
     @Id
     private String id;

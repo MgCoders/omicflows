@@ -15,6 +15,7 @@ import java.util.List;
  * Created by rsperoni on 02/05/17.
  */
 @Path("/tools")
+@Produces(MediaType.APPLICATION_JSON)
 public class ToolsService {
 
     @Inject
@@ -47,6 +48,7 @@ public class ToolsService {
                 return Response.status(Response.Status.ACCEPTED).entity(tool).build();
             }
         } catch (Exception ignored) {
+            ignored.printStackTrace();
         }
         return Response.status(Response.Status.BAD_REQUEST).entity("Invalid cwl").build();
     }
