@@ -3,11 +3,13 @@ package com.mgcoders.db.entities;
 import eu.dozd.mongo.annotation.Entity;
 import eu.dozd.mongo.annotation.Id;
 
+import java.io.Serializable;
+
 /**
  * Created by rsperoni on 05/05/17.
  */
 @Entity
-public class User {
+public class User implements Serializable {
 
     @Id
     private String id;
