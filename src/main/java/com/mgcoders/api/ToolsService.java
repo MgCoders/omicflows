@@ -3,6 +3,9 @@ package com.mgcoders.api;
 import com.mgcoders.cwl.CwlOps;
 import com.mgcoders.db.MongoClientProvider;
 import com.mgcoders.db.entities.Tool;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
+import org.bson.BsonString;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -10,6 +13,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.mongodb.client.model.Filters.eq;
 
 /**
  * Created by rsperoni on 02/05/17.
@@ -40,17 +45,48 @@ public class ToolsService {
     @POST
     //@JWTTokenNeeded
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response newTool(Tool tool) {
+    public Response saveTool(Tool tool) {
         try {
             tool.generateJson();
             if (cwlOps.isValidCwlTool(tool)) {
-                mongoClientProvider.getToolCollection().insertOne(tool);
-                return Response.status(Response.Status.ACCEPTED).entity(tool).build();
+                if (tool.getId() == null) {
+                    mongoClientProvider.getToolCollection().insertOne(tool);
+                    return Response.status(Response.Status.ACCEPTED).entity(tool).build();
+                } else {
+                    UpdateResult updateResult = mongoClientProvider.getToolCollection().replaceOne(eq("_id", new BsonString(tool.getId())), tool);
+                    if (updateResult.getModifiedCount() > 0) {
+                        return Response.status(Response.Status.ACCEPTED).entity(tool).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_MODIFIED).build();
+                    }
+                }
+
             }
         } catch (Exception ignored) {
             ignored.printStackTrace();
         }
         return Response.status(Response.Status.BAD_REQUEST).entity("Invalid cwl").build();
+    }
+
+    @DELETE
+    //@JWTTokenNeeded
+    @Path("/{toolId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response deleteTool(@PathParam("toolId") String toolId) {
+        try {
+
+            DeleteResult deleteResult = mongoClientProvider.getToolCollection().deleteOne(eq("_id", new BsonString(toolId)));
+            if (deleteResult.getDeletedCount() > 0) {
+                return Response.status(Response.Status.ACCEPTED).build();
+            } else {
+                return Response.status(Response.Status.NOT_MODIFIED).build();
+            }
+
+
+        } catch (Exception ignored) {
+            ignored.printStackTrace();
+        }
+        return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
 

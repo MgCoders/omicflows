@@ -70,6 +70,8 @@ public class MongoClientProvider {
 
         try {
             mongoClient = new MongoClient(CONNECTION_STRING, options);
+            //getToolCollection().drop();
+            //getWorkflowCollection().drop();
             //logger.info(mongoClient.toString());
         } catch (Exception e) {
             e.printStackTrace();
