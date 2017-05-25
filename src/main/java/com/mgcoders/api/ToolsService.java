@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -27,6 +28,8 @@ public class ToolsService {
     MongoClientProvider mongoClientProvider;
     @Inject
     CwlOps cwlOps;
+    @Inject
+    private Logger logger;
 
     @GET
     @Path("/{query}")
@@ -44,6 +47,7 @@ public class ToolsService {
 
     @POST
     //@JWTTokenNeeded
+    @Path("/save")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response saveTool(Tool tool) {
         try {
@@ -54,6 +58,7 @@ public class ToolsService {
                     return Response.status(Response.Status.ACCEPTED).entity(tool).build();
                 } else {
                     UpdateResult updateResult = mongoClientProvider.getToolCollection().replaceOne(eq("_id", new BsonString(tool.getId())), tool);
+                    logger.info(updateResult.toString());
                     if (updateResult.getModifiedCount() > 0) {
                         return Response.status(Response.Status.ACCEPTED).entity(tool).build();
                     } else {
@@ -70,12 +75,13 @@ public class ToolsService {
 
     @DELETE
     //@JWTTokenNeeded
-    @Path("/{toolId}")
+    @Path("/delete/{toolId}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteTool(@PathParam("toolId") String toolId) {
         try {
 
             DeleteResult deleteResult = mongoClientProvider.getToolCollection().deleteOne(eq("_id", new BsonString(toolId)));
+            logger.info(deleteResult.toString());
             if (deleteResult.getDeletedCount() > 0) {
                 return Response.status(Response.Status.ACCEPTED).build();
             } else {
