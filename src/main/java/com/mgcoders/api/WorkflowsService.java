@@ -58,7 +58,7 @@ public class WorkflowsService {
             Tool tool = mongoClientProvider.getToolCollection().find(eq("_id", toolId)).first();
             if (tool != null) {
                 WorkflowStep workflowStep = cwlOps.createWorkflowStep(tool, workflowInList);
-                return Response.status(Response.Status.FOUND).entity(workflowStep).build();
+                return Response.status(Response.Status.ACCEPTED).entity(workflowStep).build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
