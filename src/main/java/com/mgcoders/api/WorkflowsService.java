@@ -84,6 +84,7 @@ public class WorkflowsService {
             }
 
         } catch (Exception ignored) {
+            ignored.printStackTrace();
         }
         return Response.status(Response.Status.BAD_REQUEST).entity("Invalid parameters").build();
     }

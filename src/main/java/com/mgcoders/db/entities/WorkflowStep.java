@@ -14,7 +14,6 @@ public class WorkflowStep {
     private String name;
     private String cwl;
     private String json;
-    private Boolean complete;
     private List<WorkflowIn> innerUnmatchedInputs = new ArrayList<>();
     private List<WorkflowIn> neededInputs = new ArrayList<>();
     private List<WorkflowOut> neededOutputs = new ArrayList<>();
@@ -44,14 +43,6 @@ public class WorkflowStep {
 
     public void setJson(String json) {
         this.json = json;
-    }
-
-    public Boolean getComplete() {
-        return complete;
-    }
-
-    public void setComplete(Boolean complete) {
-        this.complete = complete;
     }
 
     public List<WorkflowIn> getInnerUnmatchedInputs() {
