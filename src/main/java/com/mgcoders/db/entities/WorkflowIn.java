@@ -89,4 +89,15 @@ public class WorkflowIn {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    @Override
+    public String toString() {
+        return "WorkflowIn{" +
+                "name='" + name + '\'' +
+                ", sourceMappedToolName='" + sourceMappedToolName + '\'' +
+                ", sourceMappedPortName='" + sourceMappedPortName + '\'' +
+                ", mapped=" + mapped +
+                ", schema='" + schema + '\'' +
+                '}';
+    }
 }

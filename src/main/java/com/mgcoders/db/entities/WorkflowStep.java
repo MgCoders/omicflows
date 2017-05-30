@@ -4,6 +4,7 @@ import eu.dozd.mongo.annotation.Embedded;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by rsperoni on 13/05/17.
@@ -11,14 +12,15 @@ import java.util.List;
 @Embedded
 public class WorkflowStep {
 
+    private String id;
     private String name;
-    private String cwl;
     private String json;
-    private List<WorkflowIn> innerUnmatchedInputs = new ArrayList<>();
     private List<WorkflowIn> neededInputs = new ArrayList<>();
     private List<WorkflowOut> neededOutputs = new ArrayList<>();
 
     public WorkflowStep() {
+        //Este id es para distinguir en el frontend, no para la bd ya que va embedded.
+        this.name = UUID.randomUUID().toString().split("-")[0];
     }
 
     public String getName() {
@@ -29,28 +31,12 @@ public class WorkflowStep {
         this.name = name;
     }
 
-    public String getCwl() {
-        return cwl;
-    }
-
-    public void setCwl(String cwl) {
-        this.cwl = cwl;
-    }
-
     public String getJson() {
         return json;
     }
 
     public void setJson(String json) {
         this.json = json;
-    }
-
-    public List<WorkflowIn> getInnerUnmatchedInputs() {
-        return innerUnmatchedInputs;
-    }
-
-    public void setInnerUnmatchedInputs(List<WorkflowIn> innerUnmatchedInputs) {
-        this.innerUnmatchedInputs = innerUnmatchedInputs;
     }
 
     public List<WorkflowIn> getNeededInputs() {
@@ -67,5 +53,23 @@ public class WorkflowStep {
 
     public void setNeededOutputs(List<WorkflowOut> neededOutputs) {
         this.neededOutputs = neededOutputs;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "WorkflowStep{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", neededInputs=" + neededInputs +
+                ", neededOutputs=" + neededOutputs +
+                '}';
     }
 }

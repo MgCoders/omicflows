@@ -1,5 +1,6 @@
 package com.mgcoders.db.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.dozd.mongo.annotation.Entity;
 import eu.dozd.mongo.annotation.Id;
 
@@ -16,7 +17,9 @@ public class Workflow {
     private String id;
     private String userId;
     private String name;
+    @JsonIgnore
     private String cwl;
+    @JsonIgnore
     private String json;
     private Boolean complete = false;
     private List<WorkflowStep> steps = new ArrayList<>();

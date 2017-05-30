@@ -2,7 +2,10 @@ package com.mgcoders.api;
 
 import com.mgcoders.cwl.CwlOps;
 import com.mgcoders.db.MongoClientProvider;
-import com.mgcoders.db.entities.*;
+import com.mgcoders.db.entities.Tool;
+import com.mgcoders.db.entities.User;
+import com.mgcoders.db.entities.Workflow;
+import com.mgcoders.db.entities.WorkflowStep;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -10,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -27,6 +31,8 @@ public class WorkflowsService {
     MongoClientProvider mongoClientProvider;
     @Inject
     CwlOps cwlOps;
+    @Inject
+    private Logger logger;
 
 
     @GET
@@ -49,21 +55,22 @@ public class WorkflowsService {
         return Response.status(Response.Status.BAD_REQUEST).entity("Invalid workflow").build();
     }
 
-    @POST
+    @GET
     //@JWTTokenNeeded
     @Path("/step/{toolId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createWorkflowStep(@PathParam("toolId") String toolId, List<WorkflowIn> workflowInList) {
+    public Response createWorkflowStep(@PathParam("toolId") String toolId) {
         try {
             Tool tool = mongoClientProvider.getToolCollection().find(eq("_id", toolId)).first();
             if (tool != null) {
-                WorkflowStep workflowStep = cwlOps.createWorkflowStep(tool, workflowInList);
+                WorkflowStep workflowStep = cwlOps.createWorkflowStep(tool);
                 return Response.status(Response.Status.ACCEPTED).entity(workflowStep).build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
         } catch (Exception ignored) {
+            ignored.printStackTrace();
         }
         return Response.status(Response.Status.BAD_REQUEST).entity("Invalid parameters").build();
     }
@@ -73,6 +80,7 @@ public class WorkflowsService {
     @Path("/{workflowId}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addStepToWorkflow(@PathParam("workflowId") String workflowId, WorkflowStep workflowStep) {
+        logger.info(workflowStep.toString());
         try {
             Workflow workflow = mongoClientProvider.getWorkflowCollection().find(and(eq("_id", workflowId), eq("complete", false))).first();
             if (workflowId != null) {
@@ -89,7 +97,7 @@ public class WorkflowsService {
         return Response.status(Response.Status.BAD_REQUEST).entity("Invalid parameters").build();
     }
 
-    @POST
+    @GET
     //@JWTTokenNeeded
     @Path("/close/{workflowId}")
     @Consumes(MediaType.APPLICATION_JSON)

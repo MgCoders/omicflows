@@ -56,4 +56,12 @@ public class WorkflowOut {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    @Override
+    public String toString() {
+        return "WorkflowOut{" +
+                "name='" + name + '\'' +
+                ", schema='" + schema + '\'' +
+                '}';
+    }
 }

@@ -1,6 +1,7 @@
 package com.mgcoders.db.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.dozd.mongo.annotation.Entity;
 import eu.dozd.mongo.annotation.Id;
 
@@ -19,6 +20,7 @@ public class Tool implements Serializable {
     private String id;
     private String name;
     private String cwl;
+    @JsonIgnore
     private String json;
     private String descripcion;
 

@@ -2,10 +2,7 @@ package com.mgcoders.cwl;
 
 import com.mgcoders.db.entities.Tool;
 import com.mgcoders.db.entities.Workflow;
-import com.mgcoders.db.entities.WorkflowIn;
 import com.mgcoders.db.entities.WorkflowStep;
-
-import java.util.List;
 
 /**
  * Created by rsperoni on 11/05/17.
@@ -29,17 +26,18 @@ public interface CwlOps {
 
 
     /**
-     * Creo un step a partir de una tool, es en este paso de la interaccion
-     * que seteo mapeo de puertos.
+     * Creo un step a partir de una tool.
+     * Cuando se crea, no tiene ningun unmatchedInput
+     * todas las entradas y salidas coinciden con la tool.
      *
      * @param tool
-     * @param mappedInputs
      * @return
      */
-    WorkflowStep createWorkflowStep(Tool tool, List<WorkflowIn> mappedInputs);
+    WorkflowStep createWorkflowStep(Tool tool);
 
     /**
-     * Dado un wf, agregar un step
+     * Dado un wf, agregar un step que puede venir con puertos modificiados y mapeados
+     * en las listas de puertos, pero si ese el es caso el cwl y json están desactualizados.
      * dara como resultado el wf modificado que sabe lo que todavia
      * falta por definir.
      *

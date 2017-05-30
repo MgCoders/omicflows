@@ -11,10 +11,10 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 import static com.mgcoders.utils.YamlUtils.cwlFileContentToJson;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by rsperoni on 09/05/17.
@@ -49,7 +49,7 @@ public class RabixCwlTest {
         String jsonCompileToolFile = cwlFileContentToJson(YamlUtils.readFile(compileToolFile.getPath(), StandardCharsets.UTF_8));
         Tool tool = new Tool("1st-tool.cwl", YamlUtils.readFile(compileToolFile.getPath(), StandardCharsets.UTF_8), jsonCompileToolFile);
         //Step
-        WorkflowStep workflowStepArg = rabixCwlOps.createWorkflowStep(tool, Arrays.asList());
+        WorkflowStep workflowStepArg = rabixCwlOps.createWorkflowStep(tool);
         //Workflow
         Workflow workflow = rabixCwlOps.createWorkflow("1st-echo-generated.cwl", "nada");
         rabixCwlOps.addStepToWorkflow(workflow, workflowStepArg);
@@ -64,26 +64,30 @@ public class RabixCwlTest {
         File file = new File(getClass().getClassLoader().getResource("tools/arguments.cwl").getFile());
         String jsonFile = cwlFileContentToJson(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
         Tool toolArg = new Tool("arguments.cwl", YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8), jsonFile);
-        //Ins
-        WorkflowIn workflowIn = new WorkflowIn("src", "tar-param.cwl", "example_out", true, "File");
         //Step
-        WorkflowStep workflowStepArg = rabixCwlOps.createWorkflowStep(toolArg, Arrays.asList(workflowIn));
-
+        WorkflowStep workflowStepArg = rabixCwlOps.createWorkflowStep(toolArg);
         //Tool
         file = new File(getClass().getClassLoader().getResource("tools/tar-param.cwl").getFile());
         jsonFile = cwlFileContentToJson(YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8));
         Tool toolTar = new Tool("tar-param.cwl", YamlUtils.readFile(file.getPath(), StandardCharsets.UTF_8), jsonFile);
         //Step
-        WorkflowStep workflowStepTar = rabixCwlOps.createWorkflowStep(toolTar, Arrays.asList());
+        WorkflowStep workflowStepTar = rabixCwlOps.createWorkflowStep(toolTar);
+        System.out.println(workflowStepTar.toString());
         //Workflow
         Workflow workflow = rabixCwlOps.createWorkflow("pruebaTool.cwl", "nada");
         rabixCwlOps.addStepToWorkflow(workflow, workflowStepTar);
+        //Entrada modificada para mapear
+        WorkflowIn workflowIn = workflowStepArg.getNeededInputs().get(0);
+        workflowIn.setMapped(true);
+        workflowIn.setSourceMappedToolName(workflowStepTar.getName());
+        workflowIn.setSourceMappedPortName(workflowStepTar.getNeededOutputs().get(0).getName());
+        assertEquals(workflowIn.getSchema(), workflowStepTar.getNeededOutputs().get(0).getSchema());
+        System.out.println(workflowStepArg.toString());
         rabixCwlOps.addStepToWorkflow(workflow, workflowStepArg);
-
+        long suma_entradas_no_mapeadas = workflowStepArg.getNeededInputs().stream().filter(workflowIn1 -> !workflowIn1.getMapped()).count() + workflowStepTar.getNeededInputs().stream().filter(workflowIn1 -> !workflowIn1.getMapped()).count();
+        assertEquals(suma_entradas_no_mapeadas, (long) workflow.getNeededInputs().size());
         workflow = rabixCwlOps.postProcessWorkflow(workflow);
-
         System.out.println(workflow.getCwl());
-
         /*GOL*/
 
     }
@@ -95,12 +99,11 @@ public class RabixCwlTest {
         String jsonValidate = cwlFileContentToJson(YamlUtils.readFile(toolvalidate.getPath(), StandardCharsets.UTF_8));
         Tool tool = new Tool("validate_mapping_file.cwl", YamlUtils.readFile(toolvalidate.getPath(), StandardCharsets.UTF_8), jsonValidate);
         //Step
-        WorkflowStep workflowStepArg = rabixCwlOps.createWorkflowStep(tool, Arrays.asList());
+        WorkflowStep workflowStepArg = rabixCwlOps.createWorkflowStep(tool);
         //Workflow
         Workflow workflow = rabixCwlOps.createWorkflow("validate_mapping_file_wf_generated.cwl", "nada");
         rabixCwlOps.addStepToWorkflow(workflow, workflowStepArg);
         workflow = rabixCwlOps.postProcessWorkflow(workflow);
-
         System.out.println(workflow.getCwl());
     }
 
