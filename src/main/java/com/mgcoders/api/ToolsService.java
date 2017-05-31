@@ -32,23 +32,18 @@ public class ToolsService {
     @Inject
     private Logger logger;
 
-    @GET
-    @Path("/{query}")
-    public List<Tool> getQuery(@PathParam("query") String query) {
-        System.out.println("HOLA GET");
-        return mongoClientProvider.getToolCollection().find(Tool.class).into(new ArrayList<>());
-    }
 
     @GET
     @JWTTokenNeeded
-    @RoleNeeded({Role.ADMIN})
+    @RoleNeeded({Role.USER, Role.ADMIN})
     @Produces(MediaType.APPLICATION_JSON)
     public List<Tool> get() {
         return mongoClientProvider.getToolCollection().find(Tool.class).into(new ArrayList<>());
     }
 
     @POST
-    //@JWTTokenNeeded
+    @JWTTokenNeeded
+    @RoleNeeded({Role.ADMIN})
     @Path("/save")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response saveTool(Tool tool) {
@@ -76,7 +71,8 @@ public class ToolsService {
     }
 
     @DELETE
-    //@JWTTokenNeeded
+    @JWTTokenNeeded
+    @RoleNeeded({Role.ADMIN})
     @Path("/delete/{toolId}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteTool(@PathParam("toolId") String toolId) {
