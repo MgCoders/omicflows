@@ -1,8 +1,10 @@
 package com.mgcoders.db;
 
+import com.mgcoders.db.entities.Role;
 import com.mgcoders.db.entities.Tool;
 import com.mgcoders.db.entities.User;
 import com.mgcoders.db.entities.Workflow;
+import com.mgcoders.utils.PasswordUtils;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.client.MongoCollection;
@@ -72,6 +74,18 @@ public class MongoClientProvider {
             mongoClient = new MongoClient(CONNECTION_STRING, options);
             //getToolCollection().drop();
             //getWorkflowCollection().drop();
+            getUserCollection().drop();
+            User user = new User();
+            user.setEmail("r");
+            user.setPassword(PasswordUtils.digestPassword("r"));
+            user.setRole(Role.ADMIN.name());
+            getUserCollection().insertOne(user);
+
+            User user2 = new User();
+            user2.setEmail("a");
+            user2.setPassword(PasswordUtils.digestPassword("a"));
+            user2.setRole(Role.USER.name());
+            getUserCollection().insertOne(user2);
             //logger.info(mongoClient.toString());
         } catch (Exception e) {
             e.printStackTrace();

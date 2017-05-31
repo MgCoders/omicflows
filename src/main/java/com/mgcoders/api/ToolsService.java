@@ -2,6 +2,7 @@ package com.mgcoders.api;
 
 import com.mgcoders.cwl.CwlOps;
 import com.mgcoders.db.MongoClientProvider;
+import com.mgcoders.db.entities.Role;
 import com.mgcoders.db.entities.Tool;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -39,7 +40,8 @@ public class ToolsService {
     }
 
     @GET
-    //@JWTTokenNeeded
+    @JWTTokenNeeded
+    @RoleNeeded({Role.ADMIN})
     @Produces(MediaType.APPLICATION_JSON)
     public List<Tool> get() {
         return mongoClientProvider.getToolCollection().find(Tool.class).into(new ArrayList<>());

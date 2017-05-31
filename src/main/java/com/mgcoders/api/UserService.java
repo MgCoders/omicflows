@@ -16,13 +16,12 @@ import javax.ws.rs.core.UriInfo;
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
+import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
@@ -54,16 +53,19 @@ public class UserService {
         try {
 
             // Authenticate the user using the credentials provided
-            authenticate(email, password);
+            User user = authenticate(email, password);
 
+            //Info que quiero guardar en token
+            Map<String, Object> map = new HashMap<>();
+            map.put("role", user.getRole());
 
             // Issue a token for the user
-            String token = issueToken(email);
+            String token = issueToken(email, map);
 
             // Return the token on the response
             String json = "{\"token\":" + "\"Bearer " + token + "\"}";
-            return Response.ok(json).build();
-            //return Response.ok().header(AUTHORIZATION, "Bearer " + token).build();
+            //return Response.ok(json).build();
+            return Response.ok(json).header(AUTHORIZATION, "Bearer " + token).build();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -88,7 +90,7 @@ public class UserService {
     }
 
 
-    private void authenticate(String email, String password) throws Exception {
+    private User authenticate(String email, String password) throws Exception {
         User user = mongoClientProvider.getUserCollection()
                 .find()
                 .filter(and(eq("email", email), eq("password", PasswordUtils.digestPassword(password))))
@@ -96,12 +98,15 @@ public class UserService {
 
         if (user == null)
             throw new SecurityException("Invalid user/password");
+
+        return user;
     }
 
-    private String issueToken(String login) {
+    private String issueToken(String login, Map<String, Object> claims) {
         Key key = keyGenerator.generateKey();
         String jwtToken = Jwts.builder()
                 .setSubject(login)
+                .setClaims(claims)
                 .setIssuer(uriInfo.getAbsolutePath().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(toDate(LocalDateTime.now().plusMinutes(15L)))
