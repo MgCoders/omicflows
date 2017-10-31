@@ -1,0 +1,35 @@
+version: '3.1'
+
+services:
+
+    wildfly:
+      image: sulfur-backend
+      build: .
+      environment:
+        DB_HOST: db
+      ports:
+        - 127.0.0.1:8080:8080
+        - 127.0.0.1:9990:9990
+      links:
+        - mongo
+      volumes:
+        - m2:/root/.m2
+        - ./resources/deployments:/opt/jboss/wildfly/standalone/deployments
+
+    mongo:
+      image: mongo
+      ports:
+        - 27017:27017
+
+    mongo-express:
+      image: mongo-express
+      environment:
+        - ME_CONFIG_BASICAUTH_USERNAME=admin
+        - ME_CONFIG_BASICAUTH_PASSWORD=admin
+      ports:
+        - 8081
+      depends_on:
+        - mongo
+
+volumes:
+  m2:

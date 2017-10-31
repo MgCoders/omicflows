@@ -1,0 +1,27 @@
+# Mark the commands below to be run as a batch
+batch
+
+
+/subsystem=logging/custom-handler=GelfLogger/:add(module=biz.paluch.logging,class=biz.paluch.logging.gelf.wildfly.WildFlyGelfLogHandler,properties={ \
+       host="udp:${env.LOGSTASH_HOST:none}", \
+       port="5000", \
+       version="1.0", \
+       facility="java-test", \
+       extractStackTrace=true, \
+       filterStackTrace=true, \
+       includeLogMessageParameters=true, \
+       mdcProfiling=true, \
+       timestampPattern="yyyy-MM-dd HH:mm:ss,SSSS", \
+       maximumMessageSize=8192, \
+       additionalFields="serverName=${jboss.server.name:none},subCluster=${mycluster.modcluster.lbgroup:none}", \
+       additionalFieldTypes="serverName=String,subCluster=String", \
+       mdcFields="mdcField1,mdcField2" \
+       dynamicMdcFields="mdc.*,(mdc|MDC)fields" \
+       includeFullMdc=true \
+})
+/subsystem=logging/root-logger=ROOT/:write-attribute(name=handlers,value=["FILE","CONSOLE","GelfLogger"])
+
+
+
+# Execute the batch
+run-batch

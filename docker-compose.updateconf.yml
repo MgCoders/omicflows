@@ -1,0 +1,10 @@
+version: '3.1'
+
+services:
+
+    wildfly-conf:
+      build:
+        context: .
+        dockerfile: Dockerfile.update.wildfly.conf
+      volumes:
+        - ./resources/wildfly-configuration:/tmp/generated

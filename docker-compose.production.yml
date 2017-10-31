@@ -1,14 +1,53 @@
-wildfly:
-  build: wildfly
-  ports:
-    - 8080:8080
-    - 9990:9990
-  links:
-    - mongo
-  volumes:
-    - ./wildfly/deployments:/opt/jboss/wildfly/standalone/deployments:z
-  restart: always
-mongo:
-  image: tutum/mongodb:3.2
-  environment:
-    - AUTH=no
+version: '3.1'
+
+services:
+
+    wildfly:
+      image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:latest
+      build: .
+      environment:
+        DB_HOST: ${DB_HOST}
+        DB_NAME: ${DB_NAME}
+        DB_USER: ${DB_USER}
+        DB_PASS: ${DB_PASS}
+        LOGSTASH_HOST: ${LOGSTASH_HOST}
+        VIRTUAL_HOST: ${VIRTUAL_HOST}
+        LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
+        LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+      ports:
+        - 8080
+
+    mongo:
+      image: mongo
+      ports:
+        - 27017:27017
+
+    mongo-express:
+      image: mongo-express
+      environment:
+        - ME_CONFIG_BASICAUTH_USERNAME=${MONGO_EXPRESS_BASICAUTH_USERNAME}
+        - ME_CONFIG_BASICAUTH_PASSWORD=${MONGO_EXPRESS_BASICAUTH_PASSWORD}
+        - VIRTUAL_HOST=${MONGO_EXPRESS_VIRTUAL_HOST}
+        - LETSENCRYPT_HOST=${MONGO_EXPRESS_VIRTUAL_HOST}
+        - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+      ports:
+        - 8081
+      depends_on:
+        - mongo
+
+    mongo-backup:
+      image: mgcoders/mongo-backup-s3
+      depends_on:
+        - mongo
+      environment:
+        - MONGO_HOST=mongo
+        - MONGO_DB=${MONGO_DB}
+        - S3_BUCKET=${S3_BUCKET}
+        - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+        - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+
+
+networks:
+ default:
+   external:
+     name: nginx-proxy
