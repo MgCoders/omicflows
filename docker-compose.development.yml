@@ -3,17 +3,17 @@ version: '3.1'
 services:
 
     wildfly:
-      image: sulfur-backend
+      image: omicflows-backend
       build: .
       environment:
-        DB_HOST: db
+        DB_HOST: mongo
+        DB_NAME: omicflows
       ports:
         - 127.0.0.1:8080:8080
         - 127.0.0.1:9990:9990
       links:
         - mongo
       volumes:
-        - m2:/root/.m2
         - ./resources/deployments:/opt/jboss/wildfly/standalone/deployments
 
     mongo:
@@ -30,6 +30,3 @@ services:
         - 8081
       depends_on:
         - mongo
-
-volumes:
-  m2:

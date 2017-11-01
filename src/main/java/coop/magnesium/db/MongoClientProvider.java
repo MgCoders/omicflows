@@ -26,8 +26,8 @@ import java.util.logging.Logger;
 @ApplicationScoped
 public class MongoClientProvider {
 
-    private static String CONNECTION_STRING = "mongo";
-    private static String DATABASE_NAME = "omicflows";
+    private static String CONNECTION_STRING = System.getenv("DB_HOST");
+    private static String DATABASE_NAME = System.getenv("DB_NAME");
     private static String COLLECTION_TOOL = "tool";
     private static String COLLECTION_USER = "user";
     private static String COLLECTION_WORKFLOW = "workflow";

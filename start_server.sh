@@ -2,8 +2,7 @@
 #/bin/bash
 set -x
 echo Logging in to Amazon ECR...
-$(aws ecr get-login --region $AWS_DEFAULT_REGION)
-echo cd omicflows-backend-deploy en home
+$(aws ecr get-login --region us-east-1)
 cd /home/ubuntu/omicflows-backend-deploy
-echo docker-compose up
-docker-compose -f docker-compose.production.yml build && docker-compose -f docker-compose.production.yml up -d wildfly
+cp ../conf/omicflows-backend-deploy.env /home/ubuntu/omicflows-backend-deploy/.env
+docker-compose -f docker-compose.production.yml pull && docker-compose -f docker-compose.production.yml up -d

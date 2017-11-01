@@ -1,14 +1,34 @@
-version: 0.1
+version: 0.2
+
+env:
+  variables:
+    IMAGE_TAG: "no_version"
 
 phases:
-  build:
-    commands:
-      - echo Build started on `date`
-      - mvn test
-  post_build:
-    commands:
-      - echo Build completed on `date`
-      - mvn package
+    pre_build:
+      commands:
+        - echo Logging in to Amazon ECR...
+        - $(aws ecr get-login --region $AWS_DEFAULT_REGION)
+        - export IMAGE_TAG=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
+    build:
+      commands:
+        - echo Build started on `date`
+        - echo building artifact with maven
+        - docker run --rm -v "$(pwd)":/usr/src/mymaven -w /usr/src/mymaven maven:3.3-jdk-8 mvn clean package
+        - echo Building the Docker image version $IMAGE_TAG ...
+        - docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/sulfur-backend:latest .
+        - docker tag $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/sulfur-backend:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/sulfur-backend:$IMAGE_TAG
+    post_build:
+      commands:
+        - echo Build completed on `date`
+        - echo Pushing the Docker image...
+        - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/sulfur-backend:$IMAGE_TAG
+        - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/sulfur-backend:latest
+
 artifacts:
   files:
-    - '**/*'
+    - 'stop_server.sh'
+    - 'start_server.sh'
+    - 'check_service.sh'
+    - 'appspec.yml'
+    - 'docker-compose.production.yml'

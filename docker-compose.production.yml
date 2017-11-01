@@ -6,13 +6,11 @@ services:
       image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:latest
       build: .
       environment:
-        DB_HOST: ${DB_HOST}
+        DB_HOST: mongo
         DB_NAME: ${DB_NAME}
-        DB_USER: ${DB_USER}
-        DB_PASS: ${DB_PASS}
         LOGSTASH_HOST: ${LOGSTASH_HOST}
         VIRTUAL_HOST: ${VIRTUAL_HOST}
-        LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
+        LETSENCRYPT_HOST: ${VIRTUAL_HOST}
         LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       ports:
         - 8080
@@ -41,7 +39,7 @@ services:
         - mongo
       environment:
         - MONGO_HOST=mongo
-        - MONGO_DB=${MONGO_DB}
+        - MONGO_DB=${DB_NAME}
         - S3_BUCKET=${S3_BUCKET}
         - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
         - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
