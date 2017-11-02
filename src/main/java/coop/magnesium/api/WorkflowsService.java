@@ -1,12 +1,11 @@
 package coop.magnesium.api;
 
 import coop.magnesium.api.aux.JWTTokenNeeded;
+import coop.magnesium.api.aux.RoleNeeded;
 import coop.magnesium.cwl.CwlOps;
 import coop.magnesium.db.MongoClientProvider;
-import coop.magnesium.db.entities.Tool;
-import coop.magnesium.db.entities.User;
-import coop.magnesium.db.entities.Workflow;
-import coop.magnesium.db.entities.WorkflowStep;
+import coop.magnesium.db.entities.*;
+import coop.magnesium.utils.Logged;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -29,6 +28,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 @Path("/workflows")
 @Produces(APPLICATION_JSON)
 @Consumes(APPLICATION_JSON)
+@Logged
 public class WorkflowsService {
 
     @Inject
@@ -41,6 +41,7 @@ public class WorkflowsService {
 
     @GET
     @JWTTokenNeeded
+    @RoleNeeded({Role.USER, Role.ADMIN})
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "List workflows", response = Workflow.class, responseContainer = "List")
     public List<Workflow> get() {
@@ -49,6 +50,7 @@ public class WorkflowsService {
 
     @POST
     @JWTTokenNeeded
+    @RoleNeeded({Role.USER, Role.ADMIN})
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "New workflow", response = Workflow.class)
     public Response newWorkflow(User user) {
@@ -63,6 +65,7 @@ public class WorkflowsService {
 
     @GET
     @JWTTokenNeeded
+    @RoleNeeded({Role.USER, Role.ADMIN})
     @Path("/step/{toolId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Create workflow step", response = WorkflowStep.class)
@@ -84,6 +87,7 @@ public class WorkflowsService {
 
     @POST
     @JWTTokenNeeded
+    @RoleNeeded({Role.USER, Role.ADMIN})
     @Path("/{workflowId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Add workflow step to Workflow", response = Workflow.class)
@@ -107,6 +111,7 @@ public class WorkflowsService {
 
     @GET
     @JWTTokenNeeded
+    @RoleNeeded({Role.USER, Role.ADMIN})
     @Path("/close/{workflowId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Close workflow", response = Workflow.class)

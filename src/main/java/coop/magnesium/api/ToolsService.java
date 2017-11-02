@@ -8,6 +8,7 @@ import coop.magnesium.cwl.CwlOps;
 import coop.magnesium.db.MongoClientProvider;
 import coop.magnesium.db.entities.Role;
 import coop.magnesium.db.entities.Tool;
+import coop.magnesium.utils.Logged;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.bson.BsonString;
@@ -28,6 +29,7 @@ import static com.mongodb.client.model.Filters.eq;
 @Path("/tools")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(description = "Tools", tags = "tools")
+@Logged
 public class ToolsService {
 
     @Inject

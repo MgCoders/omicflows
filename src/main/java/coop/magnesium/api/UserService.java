@@ -3,6 +3,7 @@ package coop.magnesium.api;
 import coop.magnesium.db.MongoClientProvider;
 import coop.magnesium.db.entities.User;
 import coop.magnesium.utils.KeyGenerator;
+import coop.magnesium.utils.Logged;
 import coop.magnesium.utils.PasswordUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -34,6 +35,7 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 @Produces(APPLICATION_JSON)
 @Consumes(APPLICATION_JSON)
 @Transactional
+@Logged
 public class UserService {
 
     @Inject
@@ -68,7 +70,7 @@ public class UserService {
             return Response.ok(json).header(AUTHORIZATION, "Bearer " + token).build();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warning("Unauthorized access: " + email);
             return Response.status(UNAUTHORIZED).build();
         }
     }
