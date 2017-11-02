@@ -18,6 +18,7 @@ import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -31,6 +32,7 @@ public class MongoClientProvider {
     private static String COLLECTION_TOOL = "tool";
     private static String COLLECTION_USER = "user";
     private static String COLLECTION_WORKFLOW = "workflow";
+
     @Inject
     Logger logger;
     private MongoClient mongoClient = null;
@@ -63,7 +65,8 @@ public class MongoClientProvider {
     @PostConstruct
     public void init() {
 
-
+        Logger mongoLogger = Logger.getLogger("org.mongodb");
+        mongoLogger.setLevel(Level.SEVERE);
         CodecRegistry codecRegistry = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(),
                 CodecRegistries.fromProviders(MongoMapper.getProviders()));
         MongoClientOptions options = MongoClientOptions.builder().codecRegistry(codecRegistry)
@@ -76,8 +79,8 @@ public class MongoClientProvider {
             //getWorkflowCollection().drop();
             getUserCollection().drop();
             User user = new User();
-            user.setEmail("r");
-            user.setPassword(PasswordUtils.digestPassword("r"));
+            user.setEmail("r@r.com");
+            user.setPassword(PasswordUtils.digestPassword("pass"));
             user.setRole(Role.ADMIN.name());
             getUserCollection().insertOne(user);
 

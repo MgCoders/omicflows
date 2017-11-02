@@ -74,13 +74,13 @@ public class RoleNeededFilter implements ContainerRequestFilter {
                     .parseClaimsJws(token);
 
             Role rolUsuario = Role.valueOf((String) claimsJws.getBody().get("role"));
-            logger.info("##### ROL: " + rolUsuario.name() + " #####");
+            //logger.info("##### ROL: " + rolUsuario.name() + " #####");
 
             if (!rolesPermitidos.contains(rolUsuario)) {
                 throw new Exception("Rol incorrecto");
             }
 
-            logger.info("#### AUTORIZADO ####");
+            //logger.info("#### AUTORIZADO ####");
 
         } catch (Exception e) {
             logger.severe("#### NO AUTORIZADO ####");
