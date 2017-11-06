@@ -1,7 +1,7 @@
 package coop.magnesium.api;
 
-import coop.magnesium.api.aux.JWTTokenNeeded;
-import coop.magnesium.api.aux.RoleNeeded;
+import coop.magnesium.api.utils.JWTTokenNeeded;
+import coop.magnesium.api.utils.RoleNeeded;
 import coop.magnesium.cwl.CwlOps;
 import coop.magnesium.db.MongoClientProvider;
 import coop.magnesium.db.entities.*;
@@ -46,6 +46,16 @@ public class WorkflowsService {
     @ApiOperation(value = "List workflows", response = Workflow.class, responseContainer = "List")
     public List<Workflow> get() {
         return mongoClientProvider.getWorkflowCollection().find(Workflow.class).into(new ArrayList<>());
+    }
+
+    @GET
+    @JWTTokenNeeded
+    @RoleNeeded({Role.USER, Role.ADMIN})
+    @Path("/{userId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Get workflows by user", response = Workflow.class, responseContainer = "List")
+    public List<Workflow> getByUser(@PathParam("userId") String userId) {
+        return mongoClientProvider.getWorkflowCollection().find(eq("userId", userId)).into(new ArrayList<>());
     }
 
     @POST

@@ -1,4 +1,4 @@
-package coop.magnesium.api.aux;
+package coop.magnesium.api.utils;
 
 import coop.magnesium.db.entities.Role;
 import coop.magnesium.utils.KeyGenerator;
