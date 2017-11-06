@@ -1,4 +1,4 @@
-package coop.magnesium.api.aux;
+package coop.magnesium.api.utils;
 
 import coop.magnesium.utils.PropertiesFromFile;
 import io.swagger.jaxrs.config.BeanConfig;

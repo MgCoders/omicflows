@@ -1,7 +1,7 @@
 package coop.magnesium.api;
 
-import coop.magnesium.api.aux.JWTTokenNeeded;
-import coop.magnesium.api.aux.RoleNeeded;
+import coop.magnesium.api.utils.JWTTokenNeeded;
+import coop.magnesium.api.utils.RoleNeeded;
 import coop.magnesium.cwl.CwlOps;
 import coop.magnesium.db.MongoClientProvider;
 import coop.magnesium.db.entities.*;

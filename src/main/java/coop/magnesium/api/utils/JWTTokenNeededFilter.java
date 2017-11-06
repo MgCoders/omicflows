@@ -1,4 +1,4 @@
-package coop.magnesium.api.aux;
+package coop.magnesium.api.utils;
 
 import coop.magnesium.utils.KeyGenerator;
 import io.jsonwebtoken.Jwts;
