@@ -1,5 +1,6 @@
 package coop.magnesium.db.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.dozd.mongo.annotation.Entity;
 import eu.dozd.mongo.annotation.Id;
 
@@ -14,8 +15,10 @@ public class User implements Serializable {
     @Id
     private String id;
     private String email;
+    @JsonIgnore
     private String password;
     private String role = Role.USER.name();
+    private String token;
 
 
     public User() {
@@ -51,6 +54,14 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     @Override

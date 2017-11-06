@@ -48,6 +48,16 @@ public class WorkflowsService {
         return mongoClientProvider.getWorkflowCollection().find(Workflow.class).into(new ArrayList<>());
     }
 
+    @GET
+    @JWTTokenNeeded
+    @RoleNeeded({Role.USER, Role.ADMIN})
+    @Path("/{userId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Get workflows by user", response = Workflow.class, responseContainer = "List")
+    public List<Workflow> getByUser(@PathParam("userId") String userId) {
+        return mongoClientProvider.getWorkflowCollection().find(eq("userId", userId)).into(new ArrayList<>());
+    }
+
     @POST
     @JWTTokenNeeded
     @RoleNeeded({Role.USER, Role.ADMIN})

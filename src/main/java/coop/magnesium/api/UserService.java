@@ -22,7 +22,6 @@ import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
-import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
@@ -53,21 +52,15 @@ public class UserService {
     public Response authenticateUser(@FormParam("email") String email,
                                      @FormParam("password") String password) {
         try {
-
             // Authenticate the user using the credentials provided
             User user = authenticate(email, password);
-
             //Info que quiero guardar en token
             Map<String, Object> map = new HashMap<>();
             map.put("role", user.getRole());
-
             // Issue a token for the user
             String token = issueToken(email, map);
-
-            // Return the token on the response
-            String json = "{\"token\":" + "\"Bearer " + token + "\"}";
-            //return Response.ok(json).build();
-            return Response.ok(json).header(AUTHORIZATION, "Bearer " + token).build();
+            user.setToken(token);
+            return Response.ok(user).build();
 
         } catch (Exception e) {
             logger.warning("Unauthorized access: " + email);
@@ -76,10 +69,14 @@ public class UserService {
     }
 
     @POST
-    public Response create(User user) {
-        user.setPassword(PasswordUtils.digestPassword(user.getPassword()));
+    @Logged
+    public Response create(@QueryParam("email") String email, @QueryParam("password") String password, @QueryParam("role") String role) {
+        User user = new User();
+        user.setEmail(email);
+        user.setRole(role);
+        user.setPassword(PasswordUtils.digestPassword(password));
         mongoClientProvider.getUserCollection().insertOne(user);
-        return Response.created(uriInfo.getAbsolutePathBuilder().path(user.getEmail()).build()).build();
+        return Response.accepted(user).build();
     }
 
 
