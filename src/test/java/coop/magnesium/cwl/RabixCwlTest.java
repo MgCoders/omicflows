@@ -106,4 +106,5 @@ public class RabixCwlTest {
         System.out.println(workflow.getCwl());
     }
 
+
 }

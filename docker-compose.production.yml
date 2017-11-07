@@ -12,6 +12,8 @@ services:
         VIRTUAL_HOST: ${VIRTUAL_HOST}
         LETSENCRYPT_HOST: ${VIRTUAL_HOST}
         LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+        S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+        S3_SECRET_KEY: ${S3_SECRET_KEY}
       ports:
         - 8080
 

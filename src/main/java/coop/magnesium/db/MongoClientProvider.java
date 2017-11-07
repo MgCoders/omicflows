@@ -4,10 +4,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import coop.magnesium.db.entities.Role;
-import coop.magnesium.db.entities.Tool;
-import coop.magnesium.db.entities.User;
-import coop.magnesium.db.entities.Workflow;
+import coop.magnesium.db.entities.*;
 import coop.magnesium.utils.PasswordUtils;
 import eu.dozd.mongo.MongoMapper;
 import org.bson.codecs.configuration.CodecRegistries;
@@ -32,6 +29,8 @@ public class MongoClientProvider {
     private static String COLLECTION_TOOL = "tool";
     private static String COLLECTION_USER = "user";
     private static String COLLECTION_WORKFLOW = "workflow";
+    private static String COLLECTION_JOB = "job";
+
 
     @Inject
     Logger logger;
@@ -60,6 +59,11 @@ public class MongoClientProvider {
     @Lock(LockType.READ)
     public MongoCollection<Workflow> getWorkflowCollection() {
         return getDatabase().getCollection(COLLECTION_WORKFLOW, Workflow.class);
+    }
+
+    @Lock(LockType.READ)
+    public MongoCollection<Job> getJobsCollection() {
+        return getDatabase().getCollection(COLLECTION_JOB, Job.class);
     }
 
     @PostConstruct

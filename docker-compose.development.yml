@@ -8,6 +8,8 @@ services:
       environment:
         DB_HOST: mongo
         DB_NAME: omicflows
+        S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+        S3_SECRET_KEY: ${S3_SECRET_KEY}
       ports:
         - 127.0.0.1:8080:8080
         - 127.0.0.1:9990:9990

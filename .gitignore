@@ -51,3 +51,4 @@ wildfly/deployments/*
 
 /resources/deployments/omicflows-backend.war.failed
 /resources/deployments/omicflows-backend.war
+/.env

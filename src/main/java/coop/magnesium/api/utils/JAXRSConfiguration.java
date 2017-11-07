@@ -22,6 +22,9 @@ public class JAXRSConfiguration extends Application {
     @PropertiesFromFile
     Properties endpointsProperties;
 
+    public JAXRSConfiguration() {
+    }
+
     /**
      * Add swagger configuraction
      */
