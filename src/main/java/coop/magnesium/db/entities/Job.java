@@ -19,6 +19,33 @@ public class Job {
     private Workflow workflow;
     private List<JobResource> resources = new ArrayList<>();
     private boolean ready = false;
+    private String inputsFilePath;
+    private String jsonWorkflowFilePath;
+    private String yamlWorkflowFilePath;
+
+    public String getYamlWorkflowFilePath() {
+        return yamlWorkflowFilePath;
+    }
+
+    public void setYamlWorkflowFilePath(String yamlWorkflowFilePath) {
+        this.yamlWorkflowFilePath = yamlWorkflowFilePath;
+    }
+
+    public String getInputsFilePath() {
+        return inputsFilePath;
+    }
+
+    public void setInputsFilePath(String inputsFilePath) {
+        this.inputsFilePath = inputsFilePath;
+    }
+
+    public String getJsonWorkflowFilePath() {
+        return jsonWorkflowFilePath;
+    }
+
+    public void setJsonWorkflowFilePath(String jsonWorkflowFilePath) {
+        this.jsonWorkflowFilePath = jsonWorkflowFilePath;
+    }
 
     public String getUserId() {
         return userId;

@@ -11,7 +11,7 @@ public class JobResource {
     private String name;
     @JsonProperty("class")
     private String _class;
-    private String path;
+    private String value;
 
 
     public String getName() {
@@ -30,11 +30,11 @@ public class JobResource {
         this._class = _class;
     }
 
-    public String getPath() {
-        return path;
+    public String getValue() {
+        return value;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setValue(String value) {
+        this.value = value;
     }
 }

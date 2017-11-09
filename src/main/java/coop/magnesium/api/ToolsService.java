@@ -9,19 +9,29 @@ import coop.magnesium.db.MongoClientProvider;
 import coop.magnesium.db.entities.Role;
 import coop.magnesium.db.entities.Tool;
 import coop.magnesium.utils.Logged;
+import coop.magnesium.utils.ex.ObjectNotFoundException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.io.IOUtils;
 import org.bson.BsonString;
+import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Filters.eq;
+import static coop.magnesium.utils.RestUtils.getFieldContent;
 
 /**
  * Created by rsperoni on 02/05/17.
@@ -47,6 +57,41 @@ public class ToolsService {
     @ApiOperation(value = "List tools", response = Tool.class, responseContainer = "List")
     public List<Tool> get() {
         return mongoClientProvider.getToolCollection().find(Tool.class).into(new ArrayList<>());
+    }
+
+    @POST
+    @JWTTokenNeeded
+    @RoleNeeded({Role.USER, Role.ADMIN})
+    @Path("/new")
+    @Consumes("multipart/form-data")
+    @ApiOperation(value = "New tool from file", response = Tool.class)
+    public Response newTool(MultipartFormDataInput multipartFormDataInput) {
+        try {
+            Map<String, List<InputPart>> uploadForm = multipartFormDataInput.getFormDataMap();
+            //Busco Archivo
+            List<InputPart> inputParts = uploadForm.getOrDefault("file", new ArrayList<>());
+            for (InputPart inputPart : inputParts) {
+                MultivaluedMap<String, String> headers = inputPart.getHeaders();
+                String fieldName = getFieldContent(headers, "filename");
+                if (fieldName == null) throw new ObjectNotFoundException("Filename not found");
+                InputStream inputStream = inputPart.getBody(InputStream.class, null);
+                Tool tool = new Tool();
+                tool.setName(fieldName);
+                tool.setCwl(IOUtils.toString(inputStream, StandardCharsets.UTF_8));
+                tool.generateJson();
+                if (cwlOps.isValidCwlTool(tool)) {
+                    mongoClientProvider.getToolCollection().insertOne(tool);
+                    return Response.status(Response.Status.ACCEPTED).entity(tool).build();
+                }
+            }
+            return Response.status(Response.Status.BAD_REQUEST).entity("Invalid cwl").build();
+        } catch (ObjectNotFoundException notFound) {
+            logger.warning(notFound.getMessage());
+            return Response.status(Response.Status.NOT_FOUND).entity(notFound.getMessage()).build();
+        } catch (IOException e) {
+            logger.severe(e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
     }
 
     @POST
