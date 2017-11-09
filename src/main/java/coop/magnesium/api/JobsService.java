@@ -8,6 +8,7 @@ import coop.magnesium.db.entities.JobResource;
 import coop.magnesium.db.entities.Role;
 import coop.magnesium.db.entities.Workflow;
 import coop.magnesium.utils.StorageProviderS3;
+import coop.magnesium.utils.ex.ObjectExistsException;
 import coop.magnesium.utils.ex.ObjectNotFoundException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -54,22 +55,30 @@ public class JobsService {
      * @param headers
      * @return
      */
-    private static String getFileName(MultivaluedMap<String, String> headers, String fileNameField) {
+    private static String getFieldContent(MultivaluedMap<String, String> headers, String fieldName) {
         String[] contentDisposition = headers.getFirst("Content-Disposition").split(";");
 
-        for (String filename : contentDisposition) {
-            if ((filename.trim().startsWith(fileNameField))) {
-
-                String[] name = filename.split("=");
-
-                String finalFileName = sanitizeFilename(name[1]);
-                return finalFileName;
+        for (String field : contentDisposition) {
+            if ((field.trim().startsWith(fieldName))) {
+                String[] name = field.split("=");
+                return sanitizeFieldContent(name[1]);
             }
         }
         return null;
     }
 
-    private static String sanitizeFilename(String s) {
+    /**
+     * Extract contentType from HTTP heaeders.
+     *
+     * @param headers
+     * @return
+     */
+    private static String getContentType(MultivaluedMap<String, String> headers) {
+        String contentType = headers.getFirst("Content-Type");
+        return sanitizeFieldContent(contentType);
+    }
+
+    private static String sanitizeFieldContent(String s) {
         return s.trim().replaceAll("\"", "");
     }
 
@@ -116,37 +125,41 @@ public class JobsService {
     @Path("/{jobId}")
     @Consumes("multipart/form-data")
     @ApiOperation(value = "Add resource to Job", response = Workflow.class)
-    public Response addResourceToJob(@PathParam("jobId") String jobId, MultipartFormDataInput multipartFormDataInput) {
-        final String UPLOADED_FILE_PARAMETER_NAME = "file";
-        final String UPLOADED_FILE_NAME_PARAMETER_NAME = "filename";
+    public Response addFileResourceToJob(@PathParam("jobId") String jobId, MultipartFormDataInput multipartFormDataInput) {
         try {
             Job job = mongoClientProvider.getJobsCollection().find(and(eq("_id", jobId))).first();
             if (job == null) throw new ObjectNotFoundException("Job not found");
             Map<String, List<InputPart>> uploadForm = multipartFormDataInput.getFormDataMap();
-            List<InputPart> inputParts = uploadForm.get(UPLOADED_FILE_PARAMETER_NAME);
-            if (inputParts.size() == 0) throw new ObjectNotFoundException("Uploaded file not found");
+            //Busco Archivo
+            List<InputPart> inputParts = uploadForm.getOrDefault("file", new ArrayList<>());
             for (InputPart inputPart : inputParts) {
                 MultivaluedMap<String, String> headers = inputPart.getHeaders();
-                String filename = getFileName(headers, UPLOADED_FILE_NAME_PARAMETER_NAME);
-                if (filename == null) throw new ObjectNotFoundException("Filename not found");
+                String fieldName = getFieldContent(headers, "filename");
+                if (fieldName == null) throw new ObjectNotFoundException("Filename not found");
+                if (job.getResources().stream().filter(jobResource -> jobResource.getName().equals(fieldName)).count() > 0)
+                    throw new ObjectExistsException("Alredy exists " + fieldName);
                 InputStream inputStream = inputPart.getBody(InputStream.class, null);
-                String resourceUrl = storageProviderS3.put(filename, job.getUserId(), inputStream);
+                String resourceUrl = storageProviderS3.put(fieldName, job.getUserId(), inputStream);
                 if (resourceUrl == null) throw new ObjectNotFoundException("S3 path not found");
                 JobResource resource = new JobResource();
-                resource.set_class(filename);
-                resource.setName(filename);
+                resource.set_class("file");
+                resource.setName(fieldName);
                 resource.setPath(resourceUrl);
                 job.getResources().add(resource);
-                mongoClientProvider.getJobsCollection().replaceOne(eq("_id", jobId), job);
-                return Response.status(Response.Status.OK).entity(job).build();
             }
+            mongoClientProvider.getJobsCollection().replaceOne(eq("_id", jobId), job);
+            return Response.status(Response.Status.OK).entity(job).build();
         } catch (ObjectNotFoundException notFound) {
             logger.warning(notFound.getMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(notFound.getMessage()).build();
         } catch (IOException e) {
             logger.severe(e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        } catch (ObjectExistsException e) {
+            logger.warning(e.getMessage());
+            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
-        return Response.status(Response.Status.BAD_REQUEST).entity("Invalid parameters").build();
     }
+
+
 }
