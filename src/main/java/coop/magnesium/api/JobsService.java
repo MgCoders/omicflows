@@ -21,6 +21,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -187,14 +189,21 @@ public class JobsService {
         }
     }
 
-    private InputStream generateInputDescriptorFile(List<JobResource> jobResourceList) throws UnsupportedEncodingException {
+    private InputStream generateInputDescriptorFile(List<JobResource> jobResourceList) throws UnsupportedEncodingException, MalformedURLException {
         final StringBuilder stringBuilder = new StringBuilder();
         jobResourceList.forEach(jobResource -> {
             stringBuilder.append(jobResource.getName()).append(": ");
             if (jobResource.get_class().toLowerCase().equals("file")) {
                 stringBuilder.append(System.lineSeparator());
                 stringBuilder.append("\t").append("class").append(": ").append("File");
-                stringBuilder.append("\t").append("path").append(": ").append(jobResource.getName());
+                stringBuilder.append(System.lineSeparator());
+                String fileName = jobResource.getValue();
+                try {
+                    URL url = new URL(jobResource.getValue());
+                    fileName = url.getPath();
+                } catch (MalformedURLException e) {
+                }
+                stringBuilder.append("\t").append("path").append(": ").append(fileName);
             } else {
                 stringBuilder.append(jobResource.getValue());
             }
