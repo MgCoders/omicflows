@@ -92,6 +92,29 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-depchain</artifactId>
+            <version>${version.shrinkwrap.resolvers}</version>
+            <type>pom</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.protocol</groupId>
+            <artifactId>arquillian-protocol-servlet</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.extension</groupId>
+            <artifactId>arquillian-rest-client-impl-jersey</artifactId>
+            <version>1.0.0.Alpha4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <finalName>omicflows-backend</finalName>
@@ -119,7 +142,7 @@
         <version.org.jboss.arquillian>1.1.5.Final</version.org.jboss.arquillian>
         <version.shrinkwrap.resolvers>2.2.6</version.shrinkwrap.resolvers>
         <version.org.wildfly>2.0.2.Final</version.org.wildfly>
-        <version.junit>4.12</version.junit>
+        <version.junit>4.11</version.junit>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -183,7 +206,6 @@
                 <rest.base.host>omicflows-back.mgcoders.com</rest.base.host>
             </properties>
         </profile>
-        <!-- Arquillian WildFly managed profile -->
         <profile>
             <id>arq-wildfly-managed</id>
             <activation>
@@ -225,6 +247,34 @@
                                             <outputDirectory>${project.build.directory}</outputDirectory>
                                         </artifactItem>
                                     </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>2.7</version>
+                        <executions>
+                            <execution>
+                                <id>copy-configuration-resource</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>
+                                        ${project.build.directory}/wildfly-10.1.0.Final/standalone/configuration
+                                    </outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${project.basedir}/src/test/resources/wildfly-resources
+                                            </directory>
+                                            <includes>
+                                                <include>*.xml</include>
+                                                <include>*.properties</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
                                 </configuration>
                             </execution>
                         </executions>
