@@ -167,8 +167,8 @@
             <properties>
                 <jboss.host>127.0.0.1</jboss.host>
                 <jboss.port>8080</jboss.port>
-                <app.path>omicflows</app.path>
-                <app.api.url>localhost:8080/api</app.api.url>
+                <rest.base.path>api</rest.base.path>
+                <rest.base.host>localhost:8080</rest.base.host>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -179,8 +179,8 @@
             <properties>
                 <jboss.host>https://omicflows-back.mgcoders.com</jboss.host>
                 <jboss.port>80</jboss.port>
-                <app.path>omicflows</app.path>
-                <app.api.url>https://omicflows-back.mgcoders.com/api</app.api.url>
+                <rest.base.path>api</rest.base.path>
+                <rest.base.host>omicflows-back.mgcoders.com</rest.base.host>
             </properties>
         </profile>
         <!-- Arquillian WildFly managed profile -->

@@ -1,0 +1,801 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Omicflows",
+    "version": "1.0-SNAPSHOT",
+    "title": "Omicflows backend",
+    "contact": {
+      "name": "rsperoni@mgcoders.com"
+    }
+  },
+  "host": "omicflows-back.mgcoders.com",
+  "basePath": "/api",
+  "tags": [
+    {
+      "name": "status"
+    },
+    {
+      "name": "workflows"
+    },
+    {
+      "name": "jobs"
+    },
+    {
+      "name": "tools"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/jobs": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "List jobs",
+        "description": "",
+        "operationId": "get",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Job"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "New job",
+        "description": "",
+        "operationId": "newJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Workflow"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Job"
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{jobId}": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Add simple resource to Job",
+        "description": "",
+        "operationId": "addSimpleResourceToJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/JobResource"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Job"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Close Job",
+        "description": "",
+        "operationId": "closeJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Job"
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{workflowId}": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get jobs by workflow",
+        "description": "",
+        "operationId": "getByWorkflow",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Job"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status": {
+      "get": {
+        "tags": [
+          "status"
+        ],
+        "summary": "Get system status",
+        "description": "html",
+        "operationId": "status",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/html"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/tools": {
+      "get": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "List tools",
+        "description": "",
+        "operationId": "get",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Tool"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/delete/{toolId}": {
+      "delete": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "Delete tool",
+        "description": "",
+        "operationId": "deleteTool",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/tools/new": {
+      "post": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "New tool from file",
+        "description": "",
+        "operationId": "newTool",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/MultipartFormDataInput"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Tool"
+            }
+          }
+        }
+      }
+    },
+    "/tools/save": {
+      "post": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "New tool",
+        "description": "",
+        "operationId": "saveTool",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Tool"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Tool"
+            }
+          }
+        }
+      }
+    },
+    "/workflows": {
+      "get": {
+        "tags": [
+          "workflows"
+        ],
+        "summary": "List workflows",
+        "description": "",
+        "operationId": "get",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Workflow"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "workflows"
+        ],
+        "summary": "New workflow",
+        "description": "",
+        "operationId": "newWorkflow",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Workflow"
+            }
+          }
+        }
+      }
+    },
+    "/workflows/close/{workflowId}": {
+      "get": {
+        "tags": [
+          "workflows"
+        ],
+        "summary": "Close workflow",
+        "description": "",
+        "operationId": "closeWorkflow",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Workflow"
+            }
+          }
+        }
+      }
+    },
+    "/workflows/step/{toolId}": {
+      "get": {
+        "tags": [
+          "workflows"
+        ],
+        "summary": "Create workflow step",
+        "description": "",
+        "operationId": "createWorkflowStep",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/WorkflowStep"
+            }
+          }
+        }
+      }
+    },
+    "/workflows/{userId}": {
+      "get": {
+        "tags": [
+          "workflows"
+        ],
+        "summary": "Get workflows by user",
+        "description": "",
+        "operationId": "getByUser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Workflow"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workflows/{workflowId}": {
+      "post": {
+        "tags": [
+          "workflows"
+        ],
+        "summary": "Add workflow step to Workflow",
+        "description": "",
+        "operationId": "addStepToWorkflow",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/WorkflowStep"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Workflow"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "WorkflowIn": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "sourceMappedToolName": {
+          "type": "string"
+        },
+        "sourceMappedPortName": {
+          "type": "string"
+        },
+        "mapped": {
+          "type": "boolean",
+          "default": false
+        },
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "InputPart": {
+      "type": "object",
+      "properties": {
+        "bodyAsString": {
+          "type": "string"
+        },
+        "contentTypeFromMessage": {
+          "type": "boolean",
+          "default": false
+        },
+        "mediaType": {
+          "$ref": "#/definitions/MediaType"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "MultipartFormDataInput": {
+      "type": "object",
+      "properties": {
+        "formData": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/InputPart"
+          }
+        },
+        "formDataMap": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/InputPart"
+            }
+          }
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InputPart"
+          }
+        },
+        "preamble": {
+          "type": "string"
+        }
+      }
+    },
+    "WorkflowStep": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "json": {
+          "type": "string"
+        },
+        "neededInputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkflowIn"
+          }
+        },
+        "neededOutputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkflowOut"
+          }
+        }
+      }
+    },
+    "JobResource": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "get_class": {
+          "type": "string"
+        }
+      }
+    },
+    "Workflow": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "complete": {
+          "type": "boolean",
+          "default": false
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkflowStep"
+          }
+        },
+        "neededInputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkflowIn"
+          }
+        },
+        "neededOutputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkflowOut"
+          }
+        }
+      }
+    },
+    "MediaType": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "subtype": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "wildcardType": {
+          "type": "boolean",
+          "default": false
+        },
+        "wildcardSubtype": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "Job": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "workflow": {
+          "$ref": "#/definitions/Workflow"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JobResource"
+          }
+        },
+        "ready": {
+          "type": "boolean",
+          "default": false
+        },
+        "inputsFilePath": {
+          "type": "string"
+        },
+        "jsonWorkflowFilePath": {
+          "type": "string"
+        },
+        "yamlWorkflowFilePath": {
+          "type": "string"
+        }
+      }
+    },
+    "WorkflowOut": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "Tool": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "cwl": {
+          "type": "string"
+        },
+        "descripcion": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

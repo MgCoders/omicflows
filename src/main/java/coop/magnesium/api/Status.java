@@ -41,7 +41,7 @@ public class Status {
         sb.append("<span>VERSION=" + endpointsProperties.getProperty("project.version") + "</span></br>");
         sb.append("<span>NODO=" + jbossNodeName + "</span></br>");
         sb.append("<span>LOGS=" + "<a href=''>Ver logs</a></span></br>");
-        sb.append("<span><a href=http://" + endpointsProperties.getProperty("rest.api.host") + "/" + endpointsProperties.getProperty("rest.api.path") + "/swagger.json>Swagger</a></span></br>");
+        sb.append("<span><a href=http://" + endpointsProperties.getProperty("rest.base.host") + "/" + endpointsProperties.getProperty("rest.base.path") + "/swagger.json>Swagger</a></span></br>");
         sb.append("</pre>");
         sb.append("</html>");
         return sb.toString();

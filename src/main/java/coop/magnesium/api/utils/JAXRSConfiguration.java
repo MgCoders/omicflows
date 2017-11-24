@@ -32,11 +32,11 @@ public class JAXRSConfiguration extends Application {
     public void init() {
         BeanConfig beanConfig = new BeanConfig();
         beanConfig.setVersion(endpointsProperties.getProperty("project.version"));
-        beanConfig.setSchemes(new String[]{"http"});
-        beanConfig.setHost(endpointsProperties.getProperty("rest.api.host"));
-        beanConfig.setBasePath(endpointsProperties.getProperty("rest.api.path"));
+        beanConfig.setSchemes(new String[]{"https"});
+        beanConfig.setHost(endpointsProperties.getProperty("rest.base.host"));
+        beanConfig.setBasePath(endpointsProperties.getProperty("rest.base.path"));
         beanConfig.setResourcePackage("coop.magnesium.api");
-        beanConfig.setDescription("Sulfur");
+        beanConfig.setDescription("Omicflows");
         beanConfig.setTitle("Omicflows backend");
         beanConfig.setContact("rsperoni@mgcoders.com");
         beanConfig.setScan(true);

@@ -162,7 +162,7 @@ public class JobsService {
     @RoleNeeded({Role.USER, Role.ADMIN})
     @Path("/{jobId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Add simple resource to Job", response = Job.class)
+    @ApiOperation(value = "Close Job", response = Job.class)
     public Response closeJob(@PathParam("jobId") String jobId) {
         try {
             Job job = mongoClientProvider.getJobsCollection().find(and(eq("_id", jobId))).first();
